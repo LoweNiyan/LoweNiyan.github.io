@@ -1,0 +1,168 @@
+@media (max-width: 680px) {
+    .titlebar > ul {
+        visibility: hidden;
+    }
+}
+@media (max-width: 450px) {
+    .titleicons {
+        visibility: hidden;
+    }
+
+    header > h1 {
+        font-size: 5rem !important;
+    }
+}
+
+main {
+    width: 100%;
+    padding: 0;
+}
+
+.titlebar {
+    margin-top: -48px;
+    box-shadow: unset;
+}
+
+header {
+    z-index: 2;
+    width: 100%;
+    height: 100vh;
+    font-family: 'green screen';
+    background-attachment: fixed;
+    background-image: url("https://api.yimian.xyz/img?type=wallpaper&size=1920x1080");
+    background-size:cover;
+    /* background-position-y: 48px; */
+    background-position-x: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+header > h1 {
+    position: relative;
+    float: left;
+    top: 50%;
+    left: 40px;
+    font-size: 8rem;
+    text-shadow: 0 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+section h2 {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 48px;
+}
+
+main > div {
+    min-height: 100vh;
+}
+
+section {
+    padding: 20px;
+}
+
+section h4 {
+    margin: 10px;
+    text-align: center;
+    font-weight: 300;
+    font-family: rubik;
+}
+
+article {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px;
+    max-width: 800px;
+    background-color: #232323;
+    border-radius: 10px;
+}
+
+.info {
+    display: flex;
+    flex-flow: wrap;
+    gap: 20px;
+    row-gap: 5px;
+    font-size: 16px;
+    line-height: 16px;
+    color: #888;
+    user-select: none;
+}
+
+h3 {
+    margin-bottom: 10px;
+}
+
+h3 a {
+    z-index: 1;
+    position: relative;
+    display: inline;
+    font-size: 32px;
+    background-image: linear-gradient(rgba(255, 40, 79, 0) 45%, rgba(255, 40, 79, 0.5) 45%);
+}
+h3 a::before {
+    display: inline-block;
+    font-family: opposans;
+    font-weight: 900;
+    padding-right: 8px;
+    content: "#";
+}
+
+article p {
+    margin-top: 16px;
+}
+
+.date::before {
+    padding: 2px;
+    content: "\e8f3";
+    font-family: "segoe fluent icons";
+    background-color: #050505;
+    border-radius: 5px;
+    vertical-align: text-top;
+}
+
+.author::before {
+    padding: 2px;
+    content: "\e77b";
+    font-family: "segoe fluent icons";
+    background-color: #050505;
+    border-radius: 5px;
+    vertical-align: text-top;
+}
+
+.logo {
+    position: relative;
+    bottom: 2px;
+    height: 14px;
+    opacity: 50%;
+}
+
+footer {
+    width: 100%;
+    height: 233px;
+    background-color: #000;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    user-select: none;
+}
+
+footer span:first-child {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 2px 14px;
+    font-weight: 1000;
+    background-color: #fff;
+    color: rgb(0, 0, 0);
+    font-family: opposans;
+}
+footer div {
+    position: absolute;
+    padding-bottom: 32px;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    color: #666;
+}
