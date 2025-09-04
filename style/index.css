@@ -57,10 +57,6 @@ section h2 {
     font-size: 48px;
 }
 
-main > div {
-    min-height: 100vh;
-}
-
 section {
     padding: 20px;
 }
@@ -187,70 +183,107 @@ footer div {
     margin: 0 50px;
     white-space: nowrap;
     color: #000;
-    -webkit-text-stroke: 1px #333;
+    -webkit-text-stroke: 1px #505050;
 }
 
 .hello li {
     position: relative;
 }
 
-.hello li span {
-    filter: blur(2px);
+.hello ul li:nth-child(1)  { right: 600px;  filter: blur(5px)}
+.hello ul li:nth-child(2)  { right: 650px;  filter: blur(4px)}
+.hello ul li:nth-child(3)  { right: 700px;  filter: blur(3px)}
+.hello ul li:nth-child(4)  { right: 750px;  filter: blur(2px)}
+.hello ul li:nth-child(5)  { right: 800px;  filter: blur(0px)}
+.hello ul li:nth-child(6)  { right: 850px;  filter: blur(2px)}
+.hello ul li:nth-child(7)  { right: 900px;  filter: blur(3px)}
+.hello ul li:nth-child(8)  { right: 950px;  filter: blur(4px)}
+.hello ul li:nth-child(9)  { right: 1000px; filter: blur(5px)}
+.hello ul li:nth-child(10) { right: 1050px; filter: blur(5px)}
+.hello ul li:nth-child(11) { right: 1100px; filter: blur(5px)}
+.hello ul li:nth-child(12) { right: 1150px; filter: blur(5px)}
+.hello ul li:nth-child(13) { right: 1200px; filter: blur(5px)}
+.hello ul li:nth-child(14) { right: 1250px; filter: blur(5px)}
+.hello ul li:nth-child(15) { right: 1300px; filter: blur(5px)}
+.hello ul li:nth-child(16) { right: 1350px; filter: blur(5px)}
+.hello ul li:nth-child(17) { right: 1400px; filter: blur(5px)}
+
+@keyframes titleFadeIn {
+    from {
+        opacity: 0;
+        text-shadow:
+        0 0 5px  #ffffffcc,
+        0 0 10px #ffffff80,
+        0 0 50px #ffffff9a; 
+        
+    }
+    to {
+         
+    }
+
+}
+@keyframes titleFadeIn2 {
+    from {
+        opacity: 1;
+        text-shadow:
+        0 0 5px  #ffffff,
+        0 0 10px #ffffff,
+        0 0 50px #ffffff;
+    }
+    to {
+        opacity: 1;
+        text-shadow:
+        0 0 5px  #ffffffcc,
+        0 0 10px #ffffff80,
+        0 0 50px #ffffff9a; 
+    }
 }
 
-.hello ul li:nth-child(1)  { right: 400px; }
-.hello ul li:nth-child(2)  { right: 450px; }
-.hello ul li:nth-child(3)  { right: 500px; }
-.hello ul li:nth-child(4)  { right: 550px; }
-.hello ul li:nth-child(5)  { right: 600px; }
-.hello ul li:nth-child(6)  { right: 650px; }
-.hello ul li:nth-child(7)  { right: 700px; }
-.hello ul li:nth-child(8)  { right: 750px; }
-.hello ul li:nth-child(9)  { right: 800px; }
-.hello ul li:nth-child(10) { right: 850px; }
-.hello ul li:nth-child(11) { right: 900px; }
-.hello ul li:nth-child(12) { right: 950px; }
-.hello ul li:nth-child(13) { right: 1000px; }
-.hello ul li:nth-child(14) { right: 1050px; }
-.hello ul li:nth-child(15) { right: 1100px; }
-.hello ul li:nth-child(16) { right: 1150px; }
-.hello ul li:nth-child(17) { right: 1200px; }
-
-.hello ul li:nth-child(9) span:nth-child(2) {
+.hello ul li:nth-child(5) span:nth-child(2) {
+    display: inline-block;
     color: #fff;
     -webkit-text-stroke: 0px !important;
       text-shadow:
     0 0 5px  #ffffffcc,
     0 0 10px #ffffff80,
     0 0 50px #ffffff9a; 
-    filter: blur(0);
+    filter: blur(0) !important;
+    animation: 
+    titleFadeIn 1.2s cubic-bezier(1.00, 0.01, 1.00, 0.23), 
+    titleFadeIn2 1.5s ease-out 1.2s;
 }
 
-a.more_btn {
-    position: fixed;
-    bottom: 32px;
-    left: 32px;
-    padding: 10px 15px 15px 20px;
-    line-height: 32px;
-    font-size: 32px;
-    box-shadow: 0 0 0 1px #fff,
-    0 0 5px  #ffffffcc,
-    0 0 10px #ffffff80,
-    0 0 50px #ffffff37;
-    border: 1px solid #000;
-    animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-a.more_btn:hover {
-    border-radius: 28px;
-    color: #000;
-    background: #fff;
-    border: 1px solid #000;
-    opacity: 1 !important;
-    box-shadow: 0 0 0 1px #fff,
-    0 0 5px  #ffffffcc,
-    0 0 10px #ffffff80,
-    0 0 50px #ffffff9a;
+.hello ul li:nth-child(odd):not(:nth-child(5)) {
+    opacity: 0;
+    animation: fadeIn 3s ease-out forwards;
+    animation-name: slideInLeft;
+}
+.hello ul li:nth-child(even) {
+    opacity: 0;
+    animation: fadeIn 3s ease-out forwards;
+    animation-name: slideInRight;
+}
+.hello ul li:nth-child(5) {
+    white-space: nowrap; 
+    animation: none;
+    opacity: 1;
+}
+.hello > ul > li:nth-child(5) > span:not(:nth-child(2)) {
+    display: inline-block;
+    filter: blur(1px);
+    -webkit-text-stroke: 1px #404040;
+    opacity: 0;
+    animation: fadeIn 3s ease-out forwards;
+    animation-name: slideInLeft;
 }
 
 @keyframes fadeInUp {
@@ -263,5 +296,47 @@ a.more_btn:hover {
     transform: translateY(0);
   }
 }
+a.more_btn {
+    position: fixed;
+    bottom: 32px;
+    left: 32px;
+    padding: 10px 15px 15px 20px;
+    line-height: 32px;
+    font-size: 32px;
+    box-shadow: 0 0 0 1px #fff,
+    0 0 5px  #ffffffcc,
+    0 0 10px #ffffff80,
+    0 0 50px #ffffff37;
+    border: 1px solid #000;
+    z-index: 999;
+    animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
+}
+a.more_btn:hover {
+    border-radius: 28px;
+    color: #000;
+    background: #fff;
+    border: 1px solid #000;
+    opacity: 1 !important;
+    box-shadow: 0 0 0 1px #fff,
+    0 0 5px  #ffffffcc,
+    0 0 10px #ffffff80,
+    0 0 50px #ffffff9a;
+}
 
-/* test */
+.mask {
+    display: block;
+    position: fixed;
+    left: 128px;
+    bottom: 64px;
+    width: 0.1vmax;
+    height: 0.1vmax;
+    background: #ffffff;
+    border-radius: 50%; 
+    transition: transform 0.6s ease-in-out;
+    z-index: 99;
+    overflow: hidden;
+}
+.mask.active {  
+    width: 100vmax;
+    height: 100vmax;
+}
