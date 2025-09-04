@@ -3,12 +3,6 @@ var docheight
 var windowheight
 var progress
 
-var locRepl = function() {
-    var targetProtocol = "https:";
-    if (window.location.protocol != targetProtocol)
-        window.location.href = targetProtocol +
-        window.location.href.substring(window.location.protocol.length);
-}
 
 url = window.location.hostname;
 if (url != '127.0.0.1' && url != '192.168.1.102') {
@@ -45,3 +39,4 @@ $(document).ready(function () {
         $(".progress").text(progress);
     }); 
 });
+
