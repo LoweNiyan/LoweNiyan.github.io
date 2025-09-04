@@ -23,6 +23,10 @@ main {
 
 .hello li {
     position: relative;
+    transition: transform 0.2s linear;
+    --parallax-x: 0px;
+    --parallax-y: 0px;
+    transform: translate(var(--parallax-x), var(--parallax-y));
 }
 
 @keyframes titleFadeIn {
@@ -71,27 +75,30 @@ main {
     animation:
         titleFadeIn 1.2s cubic-bezier(1.00, 0.01, 1.00, 0.23),
         titleFadeIn2 1.5s ease-out 1.2s;
+    --counter-x: 0px;
+    --counter-y: 0px;
+    transform: translate(var(--counter-x), var(--counter-y));
 }
 
 @keyframes slideInLeft {
     from {
         opacity: 0;
-        transform: translateX(-50px);
+        transform: translateX(-50px) translate(var(--parallax-x), var(--parallax-y));
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0px) translate(var(--parallax-x), var(--parallax-y));
     }
 }
 
 @keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(50px);
+        transform: translateX(50px) translate(var(--parallax-x), var(--parallax-y));
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0px) translate(var(--parallax-x), var(--parallax-y));
     }
 }
 
