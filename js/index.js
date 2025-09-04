@@ -13,4 +13,14 @@ $(document).ready(function() {
   $('#more_btn').click(function() {
     $('#mask').addClass('active');
   });
+
+  const blurValues = [5, 4, 3, 2, 0, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+  $('.hello ul li').each(function(index) {
+      const right = 600 + (index * 50);
+      const blur = blurValues[index] !== undefined ? blurValues[index] : 5;
+      $(this).css({
+          'right': right + 'px',
+          'filter': 'blur(' + blur + 'px)'
+      });
+  });
 });

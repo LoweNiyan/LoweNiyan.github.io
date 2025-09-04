@@ -1,175 +1,10 @@
-@media (max-width: 680px) {
-    .titlebar > ul {
-        visibility: hidden;
-    }
-}
-@media (max-width: 450px) {
-    .titleicons {
-        visibility: hidden;
-    }
-
-    header > h1 {
-        font-size: 5rem !important;
-    }
-}
-
 main {
     width: 100%;
     height: 100%;
     padding: 0;
     overflow: hidden;
-
 }
 
-.titlebar {
-    margin-top: -48px;
-    box-shadow: unset;
-}
-
-header {
-    z-index: 2;
-    width: 100%;
-    height: 100vh;
-    font-family: 'green screen';
-    background-attachment: fixed;
-    background-image: url("https://api.yimian.xyz/img?type=wallpaper&size=1920x1080");
-    background-size:cover;
-    /* background-position-y: 48px; */
-    background-position-x: center;
-    overflow: hidden;
-    user-select: none;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-}
-
-header > h1 {
-    position: relative;
-    float: left;
-    top: 50%;
-    left: 40px;
-    font-size: 8rem;
-    text-shadow: 0 0px 10px rgba(0, 0, 0, 0.3);
-}
-
-section h2 {
-    margin-top: 40px;
-    text-align: center;
-    font-size: 48px;
-}
-
-section {
-    padding: 20px;
-}
-
-section h4 {
-    margin: 10px;
-    text-align: center;
-    font-weight: 300;
-    font-family: rubik;
-}
-
-article {
-    margin-top: 40px;
-    margin-bottom: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 30px;
-    max-width: 800px;
-    background-color: #232323;
-    border-radius: 10px;
-}
-
-.info {
-    display: flex;
-    flex-flow: wrap;
-    gap: 20px;
-    row-gap: 5px;
-    font-size: 16px;
-    line-height: 16px;
-    color: #888;
-    user-select: none;
-}
-
-h3 {
-    margin-bottom: 10px;
-}
-
-h3 a {
-    z-index: 1;
-    position: relative;
-    display: inline;
-    font-size: 32px;
-    background-image: linear-gradient(rgba(255, 40, 79, 0) 45%, rgba(255, 40, 79, 0.5) 45%);
-}
-h3 a::before {
-    display: inline-block;
-    font-family: opposans;
-    font-weight: 900;
-    padding-right: 8px;
-    content: "#";
-}
-
-article p {
-    margin-top: 16px;
-}
-
-.date::before {
-    padding: 2px;
-    content: "\e8f3";
-    font-family: "segoe fluent icons";
-    background-color: #050505;
-    border-radius: 5px;
-    vertical-align: text-top;
-}
-
-.author::before {
-    padding: 2px;
-    content: "\e77b";
-    font-family: "segoe fluent icons";
-    background-color: #050505;
-    border-radius: 5px;
-    vertical-align: text-top;
-}
-
-.logo {
-    position: relative;
-    bottom: 2px;
-    height: 14px;
-    opacity: 50%;
-}
-
-footer {
-    width: 100%;
-    height: 233px;
-    background-color: #000;
-    text-align: center;
-    padding: 20px;
-    position: relative;
-    user-select: none;
-}
-
-footer span:first-child {
-    display: inline-block;
-    margin-bottom: 10px;
-    padding: 2px 14px;
-    font-weight: 1000;
-    background-color: #fff;
-    color: rgb(0, 0, 0);
-    font-family: opposans;
-}
-footer div {
-    position: absolute;
-    padding-bottom: 32px;
-    left: 0;
-    right: 0;
-    bottom: 10px;
-    color: #666;
-}
-
-
-
-
-/* New */
 .hello {
     position: relative;
     width: 100%;
@@ -178,7 +13,7 @@ footer div {
     top: -6vh;
 }
 
-.hello  span {
+.hello span {
     font-size: 12vh;
     margin: 0 50px;
     white-space: nowrap;
@@ -190,52 +25,37 @@ footer div {
     position: relative;
 }
 
-.hello ul li:nth-child(1)  { right: 600px;  filter: blur(5px)}
-.hello ul li:nth-child(2)  { right: 650px;  filter: blur(4px)}
-.hello ul li:nth-child(3)  { right: 700px;  filter: blur(3px)}
-.hello ul li:nth-child(4)  { right: 750px;  filter: blur(2px)}
-.hello ul li:nth-child(5)  { right: 800px;  filter: blur(0px)}
-.hello ul li:nth-child(6)  { right: 850px;  filter: blur(2px)}
-.hello ul li:nth-child(7)  { right: 900px;  filter: blur(3px)}
-.hello ul li:nth-child(8)  { right: 950px;  filter: blur(4px)}
-.hello ul li:nth-child(9)  { right: 1000px; filter: blur(5px)}
-.hello ul li:nth-child(10) { right: 1050px; filter: blur(5px)}
-.hello ul li:nth-child(11) { right: 1100px; filter: blur(5px)}
-.hello ul li:nth-child(12) { right: 1150px; filter: blur(5px)}
-.hello ul li:nth-child(13) { right: 1200px; filter: blur(5px)}
-.hello ul li:nth-child(14) { right: 1250px; filter: blur(5px)}
-.hello ul li:nth-child(15) { right: 1300px; filter: blur(5px)}
-.hello ul li:nth-child(16) { right: 1350px; filter: blur(5px)}
-.hello ul li:nth-child(17) { right: 1400px; filter: blur(5px)}
-
 @keyframes titleFadeIn {
     from {
         opacity: 0;
         text-shadow:
-        0 0 5px  #ffffffcc,
-        0 0 10px #ffffff80,
-        0 0 50px #ffffff9a; 
-        
+            0 0 5px  #ffffffcc,
+            0 0 10px #ffffff80,
+            0 0 50px #ffffff9a;
     }
     to {
-         
+        opacity: 1;
+        text-shadow:
+            0 0 5px  #ffffff,
+            0 0 10px #ffffff,
+            0 0 50px #ffffff;
     }
-
 }
+
 @keyframes titleFadeIn2 {
     from {
         opacity: 1;
         text-shadow:
-        0 0 5px  #ffffff,
-        0 0 10px #ffffff,
-        0 0 50px #ffffff;
+            0 0 5px  #ffffff,
+            0 0 10px #ffffff,
+            0 0 50px #ffffff;
     }
     to {
         opacity: 1;
         text-shadow:
-        0 0 5px  #ffffffcc,
-        0 0 10px #ffffff80,
-        0 0 50px #ffffff9a; 
+            0 0 5px  #ffffffcc,
+            0 0 10px #ffffff80,
+            0 0 50px #ffffff9a;
     }
 }
 
@@ -243,23 +63,36 @@ footer div {
     display: inline-block;
     color: #fff;
     -webkit-text-stroke: 0px !important;
-      text-shadow:
-    0 0 5px  #ffffffcc,
-    0 0 10px #ffffff80,
-    0 0 50px #ffffff9a; 
+    text-shadow:
+        0 0 5px  #ffffffcc,
+        0 0 10px #ffffff80,
+        0 0 50px #ffffff9a;
     filter: blur(0) !important;
-    animation: 
-    titleFadeIn 1.2s cubic-bezier(1.00, 0.01, 1.00, 0.23), 
-    titleFadeIn2 1.5s ease-out 1.2s;
+    animation:
+        titleFadeIn 1.2s cubic-bezier(1.00, 0.01, 1.00, 0.23),
+        titleFadeIn2 1.5s ease-out 1.2s;
 }
 
 @keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-50px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
+
 @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(50px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .hello ul li:nth-child(odd):not(:nth-child(5)) {
@@ -267,16 +100,19 @@ footer div {
     animation: fadeIn 3s ease-out forwards;
     animation-name: slideInLeft;
 }
+
 .hello ul li:nth-child(even) {
     opacity: 0;
     animation: fadeIn 3s ease-out forwards;
     animation-name: slideInRight;
 }
+
 .hello ul li:nth-child(5) {
-    white-space: nowrap; 
+    white-space: nowrap;
     animation: none;
     opacity: 1;
 }
+
 .hello > ul > li:nth-child(5) > span:not(:nth-child(2)) {
     display: inline-block;
     filter: blur(1px);
@@ -287,15 +123,16 @@ footer div {
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 0.6;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 0.6;
+        transform: translateY(0);
+    }
 }
+
 a.more_btn {
     position: fixed;
     bottom: 32px;
@@ -303,24 +140,27 @@ a.more_btn {
     padding: 10px 15px 15px 20px;
     line-height: 32px;
     font-size: 32px;
-    box-shadow: 0 0 0 1px #fff,
-    0 0 5px  #ffffffcc,
-    0 0 10px #ffffff80,
-    0 0 50px #ffffff37;
+    box-shadow:
+        0 0 0 1px #fff,
+        0 0 5px  #ffffffcc,
+        0 0 10px #ffffff80,
+        0 0 50px #ffffff37;
     border: 1px solid #000;
     z-index: 999;
     animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
 }
+
 a.more_btn:hover {
     border-radius: 28px;
     color: #000;
     background: #fff;
     border: 1px solid #000;
     opacity: 1 !important;
-    box-shadow: 0 0 0 1px #fff,
-    0 0 5px  #ffffffcc,
-    0 0 10px #ffffff80,
-    0 0 50px #ffffff9a;
+    box-shadow:
+        0 0 0 1px #fff,
+        0 0 5px  #ffffffcc,
+        0 0 10px #ffffff80,
+        0 0 50px #ffffff9a;
 }
 
 .mask {
@@ -331,12 +171,13 @@ a.more_btn:hover {
     width: 0.1vmax;
     height: 0.1vmax;
     background: #ffffff;
-    border-radius: 50%; 
+    border-radius: 50%;
     transition: transform 0.6s ease-in-out;
     z-index: 99;
     overflow: hidden;
 }
-.mask.active {  
+
+.mask.active {
     width: 100vmax;
     height: 100vmax;
 }
