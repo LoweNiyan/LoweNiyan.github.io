@@ -1,6 +1,29 @@
 $(document).ready(function() {
   $('#more_btn').click(function() {
-    $('#mask').addClass('active');
+    
+    const moreContainer = $('#more_container');
+    const btn = $('#more_btn');
+    const btnRect = this.getBoundingClientRect();
+    const x = btnRect.left + btnRect.width / 2;
+    const y = btnRect.top + btnRect.height / 2;
+
+    if (moreContainer.hasClass('active')) {
+        moreContainer.css({
+            'transition': 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
+            'clip-path': `circle(0% at ${x}px ${y}px)`
+        });
+        btn.text('more↗');
+        btn.css({'width':'146px','color':'inherit'});
+    } else {
+        moreContainer.css({
+            'transition': 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
+            'clip-path': `circle(150% at ${x}px ${y}px)`
+        });
+        btn.text('less↗');
+        btn.css({'width':'127px','color':'#000'});
+    }
+
+    moreContainer.toggleClass('active');
   });
 
   const blurValues = [5, 4, 3, 2, 0, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5];
