@@ -6,6 +6,8 @@ $(document).ready(function() {
     const btnRect = this.getBoundingClientRect();
     const x = btnRect.left + btnRect.width / 2;
     const y = btnRect.top + btnRect.height / 2;
+    const MORE_INFO_TEXT = "你好，我是Lowenya，这是我的个人主页。";
+    const MORE_INFO_ELEMENT = $('#more_info_content');
 
     if (moreContainer.hasClass('active')) {
         moreContainer.css({
@@ -24,6 +26,8 @@ $(document).ready(function() {
     }
 
     moreContainer.toggleClass('active');
+
+    setTimeout(() => {printer(MORE_INFO_TEXT, MORE_INFO_ELEMENT, 50);}, 1500);
   });
 
   const blurValues = [5, 4, 3, 2, 0, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5];

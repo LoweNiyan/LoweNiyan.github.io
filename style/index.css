@@ -14,7 +14,7 @@ main {
 }
 
 .hello span {
-    font-size: 12vh;
+    font-size: 100px;
     margin: 0 50px;
     white-space: nowrap;
     color: #000;
@@ -26,7 +26,7 @@ main {
     transition: transform 0.2s linear;
     --parallax-x: 0px;
     --parallax-y: 0px;
-    transform: translate(var(--parallax-x), var(--parallax-y));
+    transform: translate(var(--parallax-x)) var(--parallax-y));
 }
 
 @keyframes titleFadeIn {
@@ -196,4 +196,36 @@ a.more_btn:hover {
     font-size: 60px;
     font-weight: 700;
     color: #000;
+}
+
+@keyframes cursorAnimation {
+    from {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#more_info {
+    font-size: 20px;
+}
+
+#more_info_content {
+    display: inline-block;
+}
+
+#more_info_content::after {
+    content: '';
+    display: inline-block;
+    position: relative;
+    bottom: -4px;
+    height: 20px;
+    width: 2px;
+    background-color: #000;
+    border-radius: 0.5px;
+    animation: 1s cubic-bezier(0.00, 1.00, 0.00, 1.00) 1.5s infinite cursorAnimation;
 }

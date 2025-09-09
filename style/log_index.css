@@ -1,0 +1,27 @@
+body {
+    height: 100vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+main {
+    display: inline-block;
+    position: relative;
+    top: 6%;
+    width: 100vw;
+}
+
+h1 {
+    font-size: 100px;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    font-style: normal;
+    text-align: center;
+    transform: scaleX(1.5);
+}
+
+h2.date {
+    text-align: center;
+    color: #555;
+}

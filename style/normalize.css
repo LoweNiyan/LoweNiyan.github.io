@@ -114,7 +114,7 @@ body {
 }
 
 .clearfix {
-  *zoom: 1
+  zoom: 1
 }
 
 @font-face {
@@ -232,7 +232,27 @@ body {
 @font-face {
   font-family: 'Times New Roman';
   src: url('../fonts/time/times.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Times New Roman';
   src: url('../fonts/time/timesbd.ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Times New Roman';
   src: url('../fonts/time/timesbi.ttf');
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Times New Roman';
   src: url('../fonts/time/timesi.ttf');
+  font-weight: normal;
+  font-style: italic;
 }
