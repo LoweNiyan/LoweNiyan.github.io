@@ -1,6 +1,12 @@
+// 别看了，videcoding 的垃圾代码(〃ﾉωﾉ) 
+
 $(document).ready(function() {
+  let printerHandle = null;
+  let printerTimeout = null;
+  let closeTimer = null;
+
   $('#more_btn').click(function() {
-    
+
     const moreContainer = $('#more_container');
     const btn = $('#more_btn');
     const btnRect = this.getBoundingClientRect();
@@ -9,25 +15,53 @@ $(document).ready(function() {
     const MORE_INFO_TEXT = "你好，我是Lowenya，这是我的个人主页。";
     const MORE_INFO_ELEMENT = $('#more_info_content');
 
+    // 取消待执行的关闭清理（如果有的话）
+    clearTimeout(closeTimer);
+
     if (moreContainer.hasClass('active')) {
+        // === 关闭 ===
+        // 暂停打字机但不清理文字（动画期间保留）
+        if (printerHandle) printerHandle.stop();
+        clearTimeout(printerTimeout);
+
         moreContainer.css({
             'transition': 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
             'clip-path': `circle(0% at ${x}px ${y}px)`
         });
         btn.text('more↗');
         btn.css({'width':'146px','color':'inherit'});
+
+        // 动画结束后才彻底清理文字
+        closeTimer = setTimeout(() => {
+            if (printerHandle) {
+                printerHandle.clear();
+                printerHandle = null;
+            }
+        }, 600);
+
     } else {
+        // === 打开 ===
         moreContainer.css({
             'transition': 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
             'clip-path': `circle(150% at ${x}px ${y}px)`
         });
         btn.text('less↗');
         btn.css({'width':'127px','color':'#000'});
+
+        if (printerHandle && !printerHandle.isDone()) {
+            // 之前被打断了，恢复继续打印
+            printerTimeout = setTimeout(() => {
+                printerHandle.resume();
+            }, 1500);
+        } else {
+            // 全新开始
+            printerTimeout = setTimeout(() => {
+                printerHandle = printer(MORE_INFO_TEXT, MORE_INFO_ELEMENT, 50);
+            }, 1500);
+        }
     }
 
     moreContainer.toggleClass('active');
-
-    setTimeout(() => {printer(MORE_INFO_TEXT, MORE_INFO_ELEMENT, 50);}, 1500);
   });
 
   const blurValues = [5, 4, 3, 2, 0, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5];

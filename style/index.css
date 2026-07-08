@@ -17,8 +17,8 @@ main {
     font-size: 100px;
     margin: 0 50px;
     white-space: nowrap;
-    color: #000;
-    -webkit-text-stroke: 1px #505050;
+    color: #050505;
+    /* -webkit-text-stroke: 1px #505050; */
 }
 
 .hello li {
@@ -26,7 +26,7 @@ main {
     transition: transform 0.2s linear;
     --parallax-x: 0px;
     --parallax-y: 0px;
-    transform: translate(var(--parallax-x)) var(--parallax-y));
+    transform: translate(var(--parallax-x)) (var(--parallax-y));
 }
 
 @keyframes titleFadeIn {
@@ -66,7 +66,7 @@ main {
 .hello ul li:nth-child(5) span:nth-child(2) {
     display: inline-block;
     color: #fff;
-    -webkit-text-stroke: 0px !important;
+    /* -webkit-text-stroke: 0px !important; */
     text-shadow:
         0 0 5px  #ffffffcc,
         0 0 10px #ffffff80,
@@ -123,7 +123,7 @@ main {
 .hello > ul > li:nth-child(5) > span:not(:nth-child(2)) {
     display: inline-block;
     filter: blur(1px);
-    -webkit-text-stroke: 1px #404040;
+    /* -webkit-text-stroke: 1px #404040; */
     opacity: 0;
     animation: fadeIn 3s ease-out forwards;
     animation-name: slideInLeft;
@@ -144,7 +144,7 @@ a.more_btn {
     position: fixed;
     bottom: 32px;
     left: 32px;
-    padding: 10px 15px 15px 20px;
+    padding: 12px 15px 13px 20px;
     line-height: 32px;
     font-size: 32px;
     text-align: right;
@@ -178,6 +178,7 @@ a.more_btn:hover {
     width: 100%;
     height: 100%;
     display: flex;
+    padding: 32px;
     color: #333;
     background-color: #fff;
     z-index: 100;
@@ -190,12 +191,21 @@ a.more_btn:hover {
 
 .more_page h1 {
     font-size: 100px;
+    font-family: "Green screen";
 }
 
-.more_menu > li >a{
+.more_menu li a{
+    display: inline-block;
     font-size: 60px;
     font-weight: 700;
-    color: #000;
+    letter-spacing: -10px;
+    color: #aaa;
+    transform-origin: 5px center;
+    transform: scaleX(3);
+}
+
+.more_menu li a:hover{
+    color: #ff284f;
 }
 
 @keyframes cursorAnimation {
@@ -211,7 +221,15 @@ a.more_btn:hover {
 }
 
 #more_info {
+    display: block;
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    width: calc(100vw - 224px);
+    min-height: 60px;
     font-size: 20px;
+    border: 1px solid #000;
+    padding: 0 0 0 20px;
 }
 
 #more_info_content {
