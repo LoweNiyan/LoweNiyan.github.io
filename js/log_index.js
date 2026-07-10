@@ -1,35 +1,7 @@
 // ── 配置 ──
 const SCROLL_SPEED = 3;
 
-// ── 日志数据 ──
-const logs = [
-    // 文章（大卡片）
-    {
-        type: 'article',
-        date: '2026-07-09', time: '15:30',
-        title: '重构动态页',
-        summary: '将破损的 HTML 结构彻底重写，改为数据驱动渲染。新增横向时间线布局，支持文章与便笺两种卡片类型。',
-        url: 'blogs/refactor-log.htm',
-        image: null,
-        content: '原来的 log_index.htm 存在多处 HTML 结构错误：article 标签嵌套混乱、两个 id="date" 重复、全是 test 占位文本。\n\n这次重构做了三件事：\n\n1. 修 HTML —— 全删重写，只保留必要的骨架\n2. 数据驱动 —— 所有内容由 JS 数组驱动，未来加日志只需往数组里加一个对象\n3. 类型区分 —— 长文用大卡片（带标题摘要图片），短记用小卡片（一句话便笺）\n\n视觉上采用横向滚动时间线布局，左侧固定导航栏用 sticky 定位，日期用竖排衬线体做分隔标记，整体走暗色文艺风。'
-    },
-    {
-        type: 'article',
-        date: '2026-07-08', time: '22:30',
-        title: '搭建 GitHub Pages',
-        summary: '从零搭建个人主页基础框架，选定技术方案，配置 CNAME 记录指向 nyan.work。',
-        url: 'blogs/github-pages.htm',
-        image: null,
-        content: '网站采用纯静态方案：无构建工具，无框架，无包管理器。所有页面使用 .htm 扩展名，jQuery 3.6.3 来自 ASP.NET CDN。\n\n页面结构：\n- index.htm — 首页，Hello World 视差效果 + more 面板\n- pages/about.htm — 关于页（待填充）\n- pages/log_index.htm — 动态/日志页\n- pages/connect.htm — 联系页\n- pages/blogs/ — 博客文章目录\n\n字体方案从 Green Screen 替换为 Good Old DOS（DOS 终端风格），正文从 Rubik 迁移到浏览器默认衬线体，整体更文艺。'
-    },
-
-    // 便笺（小卡片）
-    { type: 'note', date: '2026-07-09', time: '14:30', content: '修复打字机动画：支持暂停/恢复，关闭面板动画期间保留已打印文字，彻底关闭后才清除。' },
-    { type: 'note', date: '2026-07-09', time: '13:00', content: '修复 more 菜单 CSS：inline 元素不响应 transform，为 .more_menu li a 添加 display: inline-block。' },
-    { type: 'note', date: '2026-07-09', time: '10:00', content: '创建 AGENTS.md，整理了项目结构、页面接线规范、.htm 约定与注意事项。' },
-    { type: 'note', date: '2026-07-08', time: '20:00', content: '设计首页 Hello World 多层视差效果，配合逐字模糊与渐入动画，DOS 终端风格标题。' },
-    { type: 'note', date: '2026-07-07', time: '18:00', content: '选定字体方案：正文衬线体、Good Old DOS 标题、JetBrainsMono 等宽。自托管全部字体文件。' },
-];
+// ── 文章 URL 列表在 js/articles.js 中定义 ──
 
 // ── 工具函数 ──
 function formatDate(dateStr) {
@@ -44,6 +16,30 @@ function groupByDate(logList) {
         groups.get(log.date).push(log);
     });
     return groups;
+}
+
+// ── 从博客页面获取文章元数据 ──
+function fetchArticleMeta(url) {
+    return fetch(url)
+        .then(function (r) { return r.text(); })
+        .then(function (html) {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            var raw = doc.getElementById('article-meta').textContent;
+            var meta = JSON.parse(raw);
+            meta.type = 'article';
+            meta.url = url;
+
+            var bodyEl = doc.querySelector('.blog-body');
+            if (bodyEl) {
+                meta.content = bodyEl.innerHTML
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<[^>]+>/g, '')
+                    .trim();
+            }
+            return meta;
+        })
+        .catch(function () { return null; });
 }
 
 // ── 卡片渲染 ──
@@ -139,8 +135,8 @@ function closeIndexOverlay() {
     }).text('index');
 }
 
-function buildIndex() {
-    var $list = $('#index_list');
+function buildIndex(logs) {
+    var $list = $('#index_list').empty();
     var groups = groupByDate(logs);
     var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
 
@@ -180,31 +176,45 @@ function buildIndex() {
 
 // ── 页面入口 ──
 $(document).ready(function () {
-    // 初始化索引弹窗 clip-path（收缩在按钮中心）
+    // 初始化索引弹窗 clip-path
     (function () {
         var center = getIndexBtnCenter();
         $('#index_overlay').css('clip-path', 'circle(0% at ' + center.x + 'px ' + center.y + 'px)');
     })();
 
-    // 渲染卡片
-    var groups = groupByDate(logs);
-    var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
-    var container = $('#log_container');
+    // 获取所有日志数据
+    var urls = window.articleUrls || [];
+    var fetches = urls.map(function (url) { return fetchArticleMeta(url); });
 
-    sortedDates.forEach(function (date) {
-        container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
-
-        groups.get(date).forEach(function (entry) {
-            if (entry.type === 'article') {
-                container.append(renderArticleCard(entry));
-            } else {
-                container.append(renderNoteCard(entry));
-            }
+    Promise.all(fetches).then(function (articleData) {
+        articleData = articleData.filter(function (a) { return a !== null; });
+        var allLogs = articleData.concat(window.notes || []);
+        allLogs.sort(function (a, b) {
+            var da = a.date + ' ' + (a.time || '00:00');
+            var db = b.date + ' ' + (b.time || '00:00');
+            return db.localeCompare(da);
         });
-    });
 
-    // 构建索引
-    buildIndex();
+        // 渲染卡片
+        var groups = groupByDate(allLogs);
+        var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
+        var container = $('#log_container');
+
+        sortedDates.forEach(function (date) {
+            container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
+
+            groups.get(date).forEach(function (entry) {
+                if (entry.type === 'article') {
+                    container.append(renderArticleCard(entry));
+                } else {
+                    container.append(renderNoteCard(entry));
+                }
+            });
+        });
+
+        // 构建索引
+        buildIndex(allLogs);
+    });
 
     // 横向滚轮（弹窗打开时不拦截）
     document.body.addEventListener('wheel', function (e) {
@@ -238,7 +248,7 @@ $(document).ready(function () {
         }
     });
 
-    // 索引弹窗点击背景关闭
+    // 索引弹窗关闭
     $('#index_overlay').on('click', function (e) {
         if (e.target === this) closeIndexOverlay();
     });
@@ -246,7 +256,6 @@ $(document).ready(function () {
 
     // 键盘快捷键
     $(document).on('keydown', function (e) {
-        // Esc: 优先关索引，再关文章弹窗
         if (e.key === 'Escape') {
             if ($('#index_overlay').hasClass('active')) {
                 closeIndexOverlay();
@@ -259,10 +268,8 @@ $(document).ready(function () {
             return;
         }
 
-        // 文章弹窗打开时不响应方向键和 i
         if ($('#modal').hasClass('active')) return;
 
-        // i 打开索引 / 切换索引
         if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) {
             if ($('#index_overlay').hasClass('active')) {
                 closeIndexOverlay();
@@ -274,7 +281,6 @@ $(document).ready(function () {
 
         if ($('#index_overlay').hasClass('active')) return;
 
-        // ← → 切换卡片
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
             e.preventDefault();
             var cards = document.querySelectorAll('.log-card-note, .log-card-article');
