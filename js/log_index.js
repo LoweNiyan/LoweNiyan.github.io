@@ -19,16 +19,37 @@ function groupByDate(logList) {
 }
 
 // ── 从博客页面获取文章元数据 ──
+var DEFAULT_IMAGE = '../../img/logimg/test_image.jpg';
+
 function fetchArticleMeta(url) {
     return fetch(url)
-        .then(function (r) { return r.text(); })
-        .then(function (html) {
+        .then(function (r) {
+            var lastMod = r.headers.get('Last-Modified');
+            return r.text().then(function (html) { return { html: html, lastMod: lastMod }; });
+        })
+        .then(function (result) {
+            var html = result.html;
+            var lastMod = result.lastMod;
+
             var parser = new DOMParser();
             var doc = parser.parseFromString(html, 'text/html');
             var raw = doc.getElementById('article-meta').textContent;
             var meta = JSON.parse(raw);
             meta.type = 'article';
             meta.url = url;
+
+            // 无日期则从 Last-Modified 获取
+            if (!meta.date && lastMod) {
+                var d = new Date(lastMod);
+                meta.date = d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+                meta.time = String(d.getHours()).padStart(2, '0') + ':' +
+                    String(d.getMinutes()).padStart(2, '0');
+            }
+
+            // 无封面图则用默认图
+            if (!meta.image) meta.image = DEFAULT_IMAGE;
 
             var bodyEl = doc.querySelector('.blog-body');
             if (bodyEl) {
@@ -72,7 +93,9 @@ function openModal(article) {
         $('#modal_img').removeClass('has-img').attr('src', '');
     }
     $('#modal_title').text(article.title);
-    $('#modal_time').text(formatDate(article.date) + '  ' + article.time);
+    var timeStr = formatDate(article.date) + '  ' + article.time;
+    if (article.author) timeStr += '  ' + article.author;
+    $('#modal_time').text(timeStr);
     $('#modal_body').html(article.content.replace(/\n/g, '<br>'));
     if (article.url) {
         $('#modal_link').attr('href', article.url).show();
@@ -145,7 +168,7 @@ function buildIndex(logs) {
 
         groups.get(date).forEach(function (entry) {
             var typeClass = 'index-badge-' + (entry.type === 'article' ? 'article' : 'note');
-            var badgeText = entry.type === 'article' ? '文' : '记';
+            var badgeText = entry.type === 'article' ? 'A' : 'N';
             var text = entry.title || entry.content;
             if (text.length > 30) text = text.substring(0, 30) + '…';
 
@@ -238,6 +261,13 @@ $(document).ready(function () {
         if (e.target === this) closeModal();
     });
     $('.modal-close').on('click', closeModal);
+
+    // 阅读原文 hover → 面板下半红光
+    $('#modal_link').on('mouseenter', function () {
+        $('.modal-panel').addClass('glow');
+    }).on('mouseleave', function () {
+        $('.modal-panel').removeClass('glow');
+    });
 
     // 索引按钮
     $('#index_btn').on('click', function () {

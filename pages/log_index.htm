@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="../style/style.css">
     <link rel="stylesheet" href="../animation/animation.css">
     <link rel="stylesheet" href="../style/log_index.css">
+    <link rel="stylesheet" href="../style/crt.css">
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.3.min.js"></script>
     <script src="../js/script.js"></script>
-    <script src="../data/articles.js"></script>
-    <script src="../data/notes.js"></script>
+    <script src="../data/logs.js"></script>
     <script src="../js/log_index.js"></script>
 </head>
 <body>
@@ -25,11 +25,13 @@
     <div id="modal" class="modal-overlay">
         <div class="modal-panel">
             <button class="modal-close">&times;</button>
-            <img id="modal_img" class="modal-img" src="" alt="">
             <h2 id="modal_title" class="modal-title"></h2>
             <time id="modal_time" class="modal-time"></time>
-            <div id="modal_body" class="modal-body"></div>
-            <a id="modal_link" class="modal-link" href="" target="_blank">阅读原文 →</a>
+            <div class="modal-scroll">
+                <img id="modal_img" class="modal-img" src="" alt="">
+                <div id="modal_body" class="modal-body"></div>
+            </div>
+            <a id="modal_link" class="modal-link" href="">阅读原文 →</a>
         </div>
     </div>
 
@@ -37,8 +39,11 @@
     <div id="index_overlay" class="index-overlay">
         <div class="index-page">
             <h1 class="index-title">索引</h1>
-            <button class="index-close">&times;</button>
-            <div id="index_list" class="index-list"></div>
+            <div class="index-content">
+                <div id="index_list" class="index-list"></div>
+                <div class="index-blank"></div>
+            </div>
+            <div class="index-mask"></div>
         </div>
     </div>
 

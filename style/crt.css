@@ -1,0 +1,52 @@
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.08) 2px,
+            rgba(0, 0, 0, 0.08) 4px
+        );
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 80%,
+        rgba(0, 0, 0, 0.2) 100%
+    );
+}
+
+html {
+    animation: crtFlicker 0.1s infinite alternate;
+}
+
+html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9997;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at center,
+        rgba(18, 255, 128, 0.02) 0%,
+        transparent 70%
+    );
+    mix-blend-mode: screen;
+}
+
+@keyframes crtFlicker {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.998; }
+    100% { opacity: 0.999; }
+}
