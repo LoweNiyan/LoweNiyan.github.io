@@ -16,21 +16,10 @@
     <script src="../js/log_index.js"></script>
 </head>
 <body>
-    <nav class="log-sidebar">
-        <div class="sidebar-scroll" id="sidebar_scroll">
-            <h1 class="progress-title progress-title-inner">动态</h1>
-            <div class="progress-bar">
-                <div class="progress-line"></div>
-                <div class="progress-indicator"></div>
-                <div id="progress_nodes" class="progress-nodes"></div>
-            </div>
-        </div>
-        <h1 class="progress-title progress-title-fixed" id="title_fixed">动态</h1>
-        <div class="title-mask" id="title_mask"></div>
-        <p id="date" class="progress-date"></p>
-    </nav>
-    <a href="../index.htm" class="log-back-btn">↖back</a>
+    <a id="index_btn" class="index-btn">index</a>
     <div id="log_container" class="log-track"></div>
+
+    <!-- 文章详情弹窗 -->
     <div id="modal" class="modal-overlay">
         <div class="modal-panel">
             <button class="modal-close">&times;</button>
@@ -38,7 +27,20 @@
             <h2 id="modal_title" class="modal-title"></h2>
             <time id="modal_time" class="modal-time"></time>
             <div id="modal_body" class="modal-body"></div>
+            <a id="modal_link" class="modal-link" href="" target="_blank">阅读原文 →</a>
         </div>
     </div>
+
+    <!-- 索引弹窗（clip-path circle 动画） -->
+    <div id="index_overlay" class="index-overlay">
+        <div class="index-page">
+            <h1 class="index-title">索引</h1>
+            <button class="index-close">&times;</button>
+            <div id="index_list" class="index-list"></div>
+        </div>
+    </div>
+
+    <!-- 键盘提示 -->
+    <div class="kb-hint">← → 切换 &nbsp; i 索引 &nbsp; Esc 关闭</div>
 </body>
 </html>

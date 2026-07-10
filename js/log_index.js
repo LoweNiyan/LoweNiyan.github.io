@@ -1,7 +1,5 @@
 // ── 配置 ──
 const SCROLL_SPEED = 3;
-const TITLE_STICK_TOP = 32;      // 标题吸顶位置 (px)
-const PHASE1_RATIO = 0.25;       // 阶段一占横向滚动比例
 
 // ── 日志数据 ──
 const logs = [
@@ -11,6 +9,7 @@ const logs = [
         date: '2026-07-09', time: '15:30',
         title: '重构动态页',
         summary: '将破损的 HTML 结构彻底重写，改为数据驱动渲染。新增横向时间线布局，支持文章与便笺两种卡片类型。',
+        url: 'blogs/refactor-log.htm',
         image: null,
         content: '原来的 log_index.htm 存在多处 HTML 结构错误：article 标签嵌套混乱、两个 id="date" 重复、全是 test 占位文本。\n\n这次重构做了三件事：\n\n1. 修 HTML —— 全删重写，只保留必要的骨架\n2. 数据驱动 —— 所有内容由 JS 数组驱动，未来加日志只需往数组里加一个对象\n3. 类型区分 —— 长文用大卡片（带标题摘要图片），短记用小卡片（一句话便笺）\n\n视觉上采用横向滚动时间线布局，左侧固定导航栏用 sticky 定位，日期用竖排衬线体做分隔标记，整体走暗色文艺风。'
     },
@@ -19,6 +18,7 @@ const logs = [
         date: '2026-07-08', time: '22:30',
         title: '搭建 GitHub Pages',
         summary: '从零搭建个人主页基础框架，选定技术方案，配置 CNAME 记录指向 nyan.work。',
+        url: 'blogs/github-pages.htm',
         image: null,
         content: '网站采用纯静态方案：无构建工具，无框架，无包管理器。所有页面使用 .htm 扩展名，jQuery 3.6.3 来自 ASP.NET CDN。\n\n页面结构：\n- index.htm — 首页，Hello World 视差效果 + more 面板\n- pages/about.htm — 关于页（待填充）\n- pages/log_index.htm — 动态/日志页\n- pages/connect.htm — 联系页\n- pages/blogs/ — 博客文章目录\n\n字体方案从 Green Screen 替换为 Good Old DOS（DOS 终端风格），正文从 Rubik 迁移到浏览器默认衬线体，整体更文艺。'
     },
@@ -33,18 +33,13 @@ const logs = [
 
 // ── 工具函数 ──
 function formatDate(dateStr) {
-    const [, m, d] = dateStr.split('-');
-    return `${parseInt(m)}月${parseInt(d)}日`;
-}
-
-function formatToday() {
-    const now = new Date();
-    return `${now.getMonth() + 1}月${now.getDate()}日`;
+    var parts = dateStr.split('-');
+    return parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日';
 }
 
 function groupByDate(logList) {
-    const groups = new Map();
-    logList.forEach(log => {
+    var groups = new Map();
+    logList.forEach(function (log) {
         if (!groups.has(log.date)) groups.set(log.date, []);
         groups.get(log.date).push(log);
     });
@@ -53,51 +48,43 @@ function groupByDate(logList) {
 
 // ── 卡片渲染 ──
 function renderNoteCard(entry) {
-    const card = $(`
-        <div class="log-card-note">
-            <time>${entry.time}</time>
-            <p>${entry.content}</p>
-        </div>
-    `);
+    var card = $('<div class="log-card-note"><time>' + entry.time + '</time><p>' + entry.content + '</p></div>');
     card.data('entry', entry);
     return card;
 }
 
 function renderArticleCard(entry) {
-    const imgHtml = entry.image
-        ? `<img src="${entry.image}" alt="">`
+    var imgHtml = entry.image
+        ? '<img src="' + entry.image + '" alt="">'
         : '<span class="card-img-placeholder">+</span>';
 
-    const card = $(`
-        <div class="log-card-article">
-            <div class="card-img-wrap">${imgHtml}</div>
-            <div class="card-title">${entry.title}</div>
-            <div class="card-summary">${entry.summary}</div>
-            <div class="card-time">${entry.time}</div>
-        </div>
-    `);
+    var card = $('<div class="log-card-article"><div class="card-img-wrap">' + imgHtml + '</div>'
+        + '<div class="card-title">' + entry.title + '</div>'
+        + '<div class="card-summary">' + entry.summary + '</div>'
+        + '<div class="card-time">' + entry.time + '</div></div>');
 
     card.data('article', entry);
     card.data('entry', entry);
     return card;
 }
 
-// ── 弹窗 ──
+// ── 文章弹窗 ──
 function openModal(article) {
-    const $modal = $('#modal');
-
     if (article.image) {
         $('#modal_img').attr('src', article.image).addClass('has-img');
     } else {
         $('#modal_img').removeClass('has-img').attr('src', '');
     }
-
     $('#modal_title').text(article.title);
-    $('#modal_time').text(`${formatDate(article.date)}  ${article.time}`);
+    $('#modal_time').text(formatDate(article.date) + '  ' + article.time);
     $('#modal_body').html(article.content.replace(/\n/g, '<br>'));
-
+    if (article.url) {
+        $('#modal_link').attr('href', article.url).show();
+    } else {
+        $('#modal_link').hide();
+    }
     $('body').css('overflow', 'hidden');
-    $modal.addClass('active');
+    $('#modal').addClass('active');
 }
 
 function closeModal() {
@@ -105,194 +92,109 @@ function closeModal() {
     $('#modal').removeClass('active');
 }
 
-// ── 进度条 ──
-function getCardCenterX(card) {
-    return card.getBoundingClientRect().left + card.offsetWidth / 2 + window.scrollX;
-}
-
-// ── 侧边栏滚动（两阶段：标题居中 → 吸顶 → 进度条继续走 → 遮罩出现）──
-function updateSidebarScroll() {
-    const scrollBody = document.body;
-    const maxScroll = scrollBody.scrollWidth - scrollBody.clientWidth;
-    if (maxScroll <= 0) return;
-
-    const scrollProgress = scrollBody.scrollLeft / maxScroll;
-    const $wrapper = $('#sidebar_scroll');
-    const $titleInner = $('.progress-title-inner');
-    const $titleFixed = $('#title_fixed');
-    const $mask = $('#title_mask');
-
-    const sidebarHeight = $('.sidebar-scroll').height();
-    const titleHeight = $titleInner.outerHeight();
-    const titleInitialTop = (sidebarHeight - titleHeight) / 2;
-    const titleTravel = titleInitialTop - TITLE_STICK_TOP;
-    const barHeight = $('.progress-bar').height();
-    const extraTravel = barHeight * 0.75;
-
-    let wrapperOffset;
-    let isPhase2;
-
-    if (scrollProgress <= PHASE1_RATIO) {
-        // 阶段一：标题从居中上移至 32px，进度条跟随移动
-        const phase1Progress = scrollProgress / PHASE1_RATIO;
-        wrapperOffset = phase1Progress * titleTravel;
-        isPhase2 = false;
-    } else {
-        // 阶段二：标题吸顶，进度条继续上滚，遮罩淡入
-        const phase2Progress = (scrollProgress - PHASE1_RATIO) / (1 - PHASE1_RATIO);
-        wrapperOffset = titleTravel + phase2Progress * extraTravel;
-        isPhase2 = true;
-    }
-
-    $wrapper.css('transform', `translateY(-${wrapperOffset}px)`);
-
-    if (isPhase2) {
-        $titleInner.css('opacity', 0);
-        $titleFixed.css({ opacity: 1, 'pointer-events': 'none' });
-        $mask.css({ top: (TITLE_STICK_TOP + titleHeight) + 'px', opacity: 1 });
-    } else {
-        $titleInner.css('opacity', 1);
-        $titleFixed.css('opacity', 0);
-        $mask.css('opacity', 0);
-    }
-}
-
-function updateProgress() {
-    const scrollBody = document.body;
-    const maxScroll = scrollBody.scrollWidth - scrollBody.clientWidth;
-    const barHeight = $('.progress-bar').height();
-    if (maxScroll <= 0 || barHeight <= 0) return;
-
-    // 滑动指示器（红点）
-    const progress = scrollBody.scrollLeft / maxScroll;
-    $('.progress-indicator').css('top', progress * barHeight + 'px');
-
-    // 高亮最近节点
-    const viewCenter = scrollBody.scrollLeft + window.innerWidth / 2;
-    let closestNode = null;
-    let minDist = Infinity;
-
-    $('#progress_nodes .progress-node').each(function () {
-        const dist = Math.abs($(this).data('cardCenterX') - viewCenter);
-        if (dist < minDist) {
-            minDist = dist;
-            closestNode = this;
-        }
+// ── 滚动到卡片 ──
+function scrollToCard(cardEl) {
+    var rect = cardEl.getBoundingClientRect();
+    var cardCenterX = rect.left + rect.width / 2 + window.scrollX;
+    var targetX = cardCenterX - window.innerWidth / 2;
+    var maxScroll = document.body.scrollWidth - document.body.clientWidth;
+    document.body.scrollTo({
+        left: Math.max(0, Math.min(targetX, maxScroll)),
+        behavior: 'smooth'
     });
-
-    $('#progress_nodes .progress-node').removeClass('active passed');
-    if (closestNode) {
-        $(closestNode).addClass('active');
-        $(closestNode).prevAll('.progress-node').addClass('passed');
-    }
 }
 
-function buildProgressBar() {
-    const cards = document.querySelectorAll('.log-card-note, .log-card-article');
-    if (cards.length === 0) return;
+// ── 索引弹窗（clip-path circle 辐射动画）──
+function getIndexBtnCenter() {
+    var btn = $('#index_btn')[0];
+    var rect = btn.getBoundingClientRect();
+    return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+    };
+}
 
-    const nodesContainer = $('#progress_nodes');
-    const scrollBody = document.body;
-    const totalWidth = scrollBody.scrollWidth;
-
-    // 初始状态：标题居中（相对于 sidebar-scroll）
-    const sidebarScrollHeight = $('.sidebar-scroll').height();
-    const titleHeight = $('.progress-title-inner').outerHeight();
-    const initialTop = (sidebarScrollHeight - titleHeight) / 2;
-    $('.progress-title-inner').css('top', initialTop + 'px');
-
-    // 进度条从标题下方开始，留 20px 间距
-    const progressOffset = initialTop + titleHeight + 20;
-    $('.progress-bar').css({
-        marginTop: progressOffset + 'px',
-        height: 'calc(100% - ' + progressOffset + 'px)'
+function openIndexOverlay() {
+    var $overlay = $('#index_overlay');
+    var center = getIndexBtnCenter();
+    $overlay.css({
+        transition: 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
+        'clip-path': 'circle(150% at ' + center.x + 'px ' + center.y + 'px)'
     });
+    $overlay.addClass('active');
+    $('#index_btn').css({ 'box-shadow': 'none', 'color': '#000' }).text('close');
+}
 
-    const barHeight = $('.progress-bar').height();
+function closeIndexOverlay() {
+    var $overlay = $('#index_overlay');
+    var center = getIndexBtnCenter();
+    $overlay.css({
+        transition: 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
+        'clip-path': 'circle(0% at ' + center.x + 'px ' + center.y + 'px)'
+    });
+    $overlay.removeClass('active');
+    $('#index_btn').css({
+        'box-shadow': '0 0 0 1px #fff, 0 0 5px #ffffffcc, 0 0 10px #ffffff80, 0 0 50px #ffffff37',
+        'color': 'inherit'
+    }).text('index');
+}
 
-    cards.forEach(function (card) {
-        const cardCenterX = getCardCenterX(card);
-        const top = Math.max(18, Math.min((cardCenterX / totalWidth) * barHeight, barHeight - 18));
+function buildIndex() {
+    var $list = $('#index_list');
+    var groups = groupByDate(logs);
+    var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
 
-        const entry = $(card).data('entry');
-        const isArticle = card.classList.contains('log-card-article');
-        const dateStr = formatDate(entry.date);
+    sortedDates.forEach(function (date) {
+        $list.append('<div class="index-date">' + formatDate(date) + '</div>');
 
-        let label;
-        if (isArticle) {
-            label = entry.title;
-        } else {
-            const text = entry.content;
-            label = text.length > 14 ? text.substring(0, 14) + '…' : text;
-        }
+        groups.get(date).forEach(function (entry) {
+            var typeClass = 'index-badge-' + (entry.type === 'article' ? 'article' : 'note');
+            var badgeText = entry.type === 'article' ? '文' : '记';
+            var text = entry.title || entry.content;
+            if (text.length > 30) text = text.substring(0, 30) + '…';
 
-        const node = $(`
-            <div class="progress-node ${isArticle ? 'article' : 'note'}" style="top:${top}px">
-                <span class="node-dot"></span>
-                <div class="node-text">
-                    <span class="node-label">${label}</span>
-                    <span class="node-time">${dateStr} ${entry.time}</span>
-                </div>
-            </div>
-        `);
+            var $item = $('<div class="index-item">'
+                + '<span class="index-badge ' + typeClass + '">' + badgeText + '</span>'
+                + '<span class="index-item-text">' + text + '</span>'
+                + '<span class="index-item-time">' + entry.time + '</span>'
+                + '</div>');
 
-        // 存卡片引用 + 静态 centerX（用于 updateProgress 高亮判断）
-        node.data({ cardEl: card, cardCenterX: cardCenterX });
+            $item.data('entry', entry);
 
-        node.on('click', function () {
-            var cardEl = $(this).data('cardEl');
-            if (!cardEl) return;
+            $item.on('click', function () {
+                var targetEntry = $(this).data('entry');
+                var cards = document.querySelectorAll('.log-card-note, .log-card-article');
+                for (var i = 0; i < cards.length; i++) {
+                    if ($(cards[i]).data('entry') === targetEntry) {
+                        scrollToCard(cards[i]);
+                        break;
+                    }
+                }
+                closeIndexOverlay();
+            });
 
-            var targetX = getCardCenterX(cardEl) - window.innerWidth / 2;
-            var maxScroll = scrollBody.scrollWidth - scrollBody.clientWidth;
-            var clampedX = Math.max(0, Math.min(targetX, maxScroll));
-
-            scrollBody.scrollTo({ left: clampedX, behavior: 'smooth' });
+            $list.append($item);
         });
-
-        nodesContainer.append(node);
-    });
-
-    // 初始化视觉状态
-    updateProgress();
-    updateSidebarScroll();
-
-    // 滚动事件（更新进度 + 侧边栏）
-    $(scrollBody).on('scroll', function () {
-        updateProgress();
-        updateSidebarScroll();
-    });
-
-    // 窗口缩放时刷新（含节点位置重算）
-    $(window).on('resize', function () {
-        var barHeight = $('.progress-bar').height();
-        var totalWidth = scrollBody.scrollWidth;
-        $('#progress_nodes .progress-node').each(function () {
-            var cx = $(this).data('cardCenterX');
-            var top = Math.max(18, Math.min((cx / totalWidth) * barHeight, barHeight - 18));
-            $(this).css('top', top + 'px');
-        });
-        updateProgress();
-        updateSidebarScroll();
     });
 }
 
 // ── 页面入口 ──
 $(document).ready(function () {
-    $('#date').text(formatToday());
+    // 初始化索引弹窗 clip-path（收缩在按钮中心）
+    (function () {
+        var center = getIndexBtnCenter();
+        $('#index_overlay').css('clip-path', 'circle(0% at ' + center.x + 'px ' + center.y + 'px)');
+    })();
 
-    const groups = groupByDate(logs);
-    const sortedDates = [...groups.keys()].sort((a, b) => b.localeCompare(a));
-    const container = $('#log_container');
+    // 渲染卡片
+    var groups = groupByDate(logs);
+    var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
+    var container = $('#log_container');
 
-    sortedDates.forEach(date => {
-        container.append(`
-            <div class="date-marker">
-                <span>${formatDate(date)}</span>
-            </div>
-        `);
+    sortedDates.forEach(function (date) {
+        container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
 
-        groups.get(date).forEach(entry => {
+        groups.get(date).forEach(function (entry) {
             if (entry.type === 'article') {
                 container.append(renderArticleCard(entry));
             } else {
@@ -301,31 +203,112 @@ $(document).ready(function () {
         });
     });
 
-    // 构建进度条（必须在卡片渲染之后）
-    buildProgressBar();
+    // 构建索引
+    buildIndex();
 
     // 横向滚轮（弹窗打开时不拦截）
-    document.querySelector('body').addEventListener('wheel', function (e) {
-        if ($('#modal').hasClass('active')) return;
+    document.body.addEventListener('wheel', function (e) {
+        if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
         if (e.deltaY !== 0) {
             e.preventDefault();
             this.scrollLeft += e.deltaY * SCROLL_SPEED;
         }
     }, { passive: false });
 
-    // 弹窗事件
+    // ── 事件绑定 ──
+
+    // 文章卡片点击
     $('#log_container').on('click', '.log-card-article', function () {
-        const article = $(this).data('article');
+        var article = $(this).data('article');
         if (article) openModal(article);
     });
 
+    // 文章弹窗关闭
     $('#modal').on('click', function (e) {
         if (e.target === this) closeModal();
     });
-
     $('.modal-close').on('click', closeModal);
 
-    $(document).on('keydown', function (e) {
-        if (e.key === 'Escape') closeModal();
+    // 索引按钮
+    $('#index_btn').on('click', function () {
+        if ($('#index_overlay').hasClass('active')) {
+            closeIndexOverlay();
+        } else {
+            openIndexOverlay();
+        }
     });
+
+    // 索引弹窗点击背景关闭
+    $('#index_overlay').on('click', function (e) {
+        if (e.target === this) closeIndexOverlay();
+    });
+    $('.index-close').on('click', closeIndexOverlay);
+
+    // 键盘快捷键
+    $(document).on('keydown', function (e) {
+        // Esc: 优先关索引，再关文章弹窗
+        if (e.key === 'Escape') {
+            if ($('#index_overlay').hasClass('active')) {
+                closeIndexOverlay();
+                return;
+            }
+            if ($('#modal').hasClass('active')) {
+                closeModal();
+                return;
+            }
+            return;
+        }
+
+        // 文章弹窗打开时不响应方向键和 i
+        if ($('#modal').hasClass('active')) return;
+
+        // i 打开索引 / 切换索引
+        if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) {
+            if ($('#index_overlay').hasClass('active')) {
+                closeIndexOverlay();
+            } else {
+                openIndexOverlay();
+            }
+            return;
+        }
+
+        if ($('#index_overlay').hasClass('active')) return;
+
+        // ← → 切换卡片
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            var cards = document.querySelectorAll('.log-card-note, .log-card-article');
+            if (cards.length === 0) return;
+
+            var viewCenter = document.body.scrollLeft + window.innerWidth / 2;
+            var currentIdx = -1;
+            var minDist = Infinity;
+            for (var i = 0; i < cards.length; i++) {
+                var r = cards[i].getBoundingClientRect();
+                var cx = r.left + r.width / 2 + window.scrollX;
+                var dist = Math.abs(cx - viewCenter);
+                if (dist < minDist) { minDist = dist; currentIdx = i; }
+            }
+
+            var nextIdx = e.key === 'ArrowRight'
+                ? Math.min(currentIdx + 1, cards.length - 1)
+                : Math.max(currentIdx - 1, 0);
+
+            if (nextIdx !== currentIdx) scrollToCard(cards[nextIdx]);
+        }
+    });
+
+    // 键盘提示：滚动后短暂隐藏
+    (function () {
+        var showTimer;
+        var $hint = $('.kb-hint');
+
+        $(window).on('scroll', function () {
+            $hint.css('opacity', 0);
+            clearTimeout(showTimer);
+            showTimer = setTimeout(function () {
+                $hint.css('opacity', 1);
+            }, 2000);
+        });
+    })();
 });

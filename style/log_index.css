@@ -1,228 +1,34 @@
 /* ── 页面基础 ── */
+@font-face {
+    font-family: "TianChengBit";
+    src: url("../fonts/TianChengBit/TianChengBit-Regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
     height: 100vh;
     overflow-y: hidden;
     overflow-x: auto;
     display: flex;
+    align-items: center;
     font-family: serif;
-    scroll-snap-type: x proximity;
-}
-
-/* ── 左侧边栏 ── */
-.log-sidebar {
-    position: sticky;
-    left: 0;
-    flex-shrink: 0;
-    width: 220px;
-    min-width: 220px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
     background: #000;
-    z-index: 10;
-    border-right: 1px solid #1a1a1a;
-    overflow: hidden;
+    scroll-snap-type: x proximity;
+    padding: 32px;
+    box-sizing: border-box;
 }
 
-/* ── 侧边栏滚动包裹 ── */
-.sidebar-scroll {
-    position: relative;
-    flex: 1;
-    overflow: hidden;
-    will-change: transform;
-}
-
-/* 标题共用样式 */
-.progress-title {
-    width: 100%;
-    text-align: center;
-    font-size: 64px;
-    font-family: "Good Old DOS", monospace;
-    font-weight: normal;
-    color: #fff;
-    pointer-events: none;
-    z-index: 5;
-    margin: 0;
-    line-height: 1;
-}
-
-/* inner：绝对定位覆盖在进度条上方，随包裹层移动 */
-.progress-title-inner {
-    position: absolute;
-    left: 0;
-    transition: opacity 0.3s ease;
-}
-
-/* fixed：阶段二吸顶，初始隐藏 */
-.progress-title-fixed {
-    position: absolute;
-    top: 32px;
-    left: 0;
-    opacity: 0;
-    z-index: 7;
-    transition: opacity 0.3s ease;
-}
-
-/* 渐变遮罩：标题吸顶后出现在标题下方 */
-.title-mask {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 80px;
-    background: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 6;
-    transition: opacity 0.3s ease;
-}
-
-/* 进度条容器：填满包裹层 */
-.progress-bar {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-/* 竖线 */
-.progress-line {
-    position: absolute;
-    left: 28px;
-    top: 0;
-    width: 1px;
-    height: 100%;
-    background: #1f1f1f;
-}
-
-/* 滑动指示器 */
-.progress-indicator {
-    position: absolute;
-    left: 22px;
-    transform: translateY(-50%);
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: #ff284f;
-    box-shadow: 0 0 10px #ff284f66;
-    z-index: 3;
-    transition: top 0.15s linear;
-}
-
-/* 节点容器 */
-.progress-nodes {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-/* 单个节点 */
-.progress-node {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding-left: 28px;
-    cursor: pointer;
-    transform: translateY(-50%);
-    z-index: 1;
-}
-
-.progress-node:hover .node-label {
-    color: #bbb;
-}
-
-/* 节点圆点 */
-.node-dot {
-    flex-shrink: 0;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #2a2a2a;
-    margin-top: 5px;
-    position: relative;
-    z-index: 2;
-}
-
-.progress-node.article .node-dot {
-    width: 10px;
-    height: 10px;
-    background: #333;
-}
-
-.progress-node.active .node-dot {
-    background: #ff284f;
-    box-shadow: 0 0 6px #ff284f66;
-}
-
-.progress-node.passed .node-dot {
-    background: #444;
-}
-
-/* 节点文字 */
-.node-text {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.node-label {
-    font-size: 13px;
-    color: #555;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 148px;
-}
-
-.progress-node.active .node-label {
-    color: #ccc;
-}
-
-.progress-node.passed .node-label {
-    color: #777;
-}
-
-.node-time {
-    font-size: 10px;
-    color: #333;
-    font-style: italic;
-    margin-top: 2px;
-}
-
-.progress-node.active .node-time {
-    color: #555;
-}
-
-.progress-node.passed .node-time {
-    color: #3a3a3a;
-}
-
-/* 底部日期 */
-.progress-date {
-    font-size: 11px;
-    color: #444;
-    text-align: center;
-    margin-bottom: 20px;
-    user-select: none;
-    flex-shrink: 0;
-}
-
-/* ── 返回按钮 ── */
-.log-back-btn {
+/* ── 索引按钮（左下角，复刻首页 more 菜单）── */
+a.index-btn {
     position: fixed;
     bottom: 32px;
     left: 32px;
-    padding: 12px 15px 13px 20px;
+    padding: 12px 15px 13px 15px;
     line-height: 32px;
     font-size: 32px;
     font-family: system-ui, -apple-system, sans-serif;
-    color: #fff;
-    text-decoration: none;
+    text-align: right;
     box-shadow:
         0 0 0 1px #fff,
         0 0 5px  #ffffffcc,
@@ -230,10 +36,10 @@ body {
         0 0 50px #ffffff37;
     border: 1px solid #000;
     z-index: 999;
-    animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both;
+    animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
 }
 
-.log-back-btn:hover {
+a.index-btn:hover {
     border-radius: 28px;
     color: #000 !important;
     background: #fff;
@@ -257,11 +63,24 @@ body {
     }
 }
 
+/* ── 键盘提示 ── */
+.kb-hint {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    font-size: 11px;
+    color: #2a2a2a;
+    font-family: serif;
+    z-index: 500;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
 /* ── 横向滚动轨道 ── */
 .log-track {
     display: flex;
     align-items: center;
-    height: 100vh;
+    height: 100%;
 }
 
 /* ── 日期分隔标记 ── */
@@ -381,6 +200,7 @@ body {
     font-size: 20px;
     font-weight: bold;
     color: #ddd;
+    font-family: "Good Old DOS", "TianChengBit", monospace;
     margin-bottom: 10px;
     line-height: 1.4;
 }
@@ -400,7 +220,7 @@ body {
     font-style: italic;
 }
 
-/* ── 弹窗 ── */
+/* ── 文章详情弹窗 ── */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -483,6 +303,154 @@ body {
     font-size: 16px;
     color: #aaa;
     line-height: 1.9;
+    margin-bottom: 28px;
+}
+
+.modal-link {
+    display: inline-block;
+    font-size: 14px;
+    color: #888;
+    text-decoration: none;
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.modal-link:hover {
+    color: #ff284f;
+    border-color: #ff284f;
+}
+
+/* ── 索引弹窗（clip-path circle 辐射动画）── */
+.index-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: 32px;
+    color: #333;
+    background-color: #ccc;
+    z-index: 100;
+    clip-path: circle(0% at 104px calc(100vh - 48px));
+}
+
+.index-overlay.active {
+    clip-path: circle(150% at 104px calc(100vh - 48px));
+    transition: clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.index-overlay:not(.active) {
+    transition: clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.index-page {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    right: 32px;
+    bottom: 32px;
+    display: flex;
+    flex-direction: column;
+}
+
+.index-title {
+    font-size: 100px;
+    font-family: "Good Old DOS", "TianChengBit", monospace;
+    font-weight: normal;
+    margin: 0 0 32px;
+    color: #222;
+    letter-spacing: 8px;
+}
+
+.index-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 36px;
+    color: #555;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 10;
+}
+
+.index-close:hover {
+    color: #000;
+}
+
+.index-list {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 12px;
+}
+
+.index-date {
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+    margin: 24px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #999;
+}
+
+.index-date:first-child {
+    margin-top: 0;
+}
+
+.index-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 6px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.index-item:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.index-badge {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-family: "Good Old DOS", monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.index-badge-article {
+    background: #c8d6c8;
+    color: #2a5a2a;
+}
+
+.index-badge-note {
+    background: #ccc8d6;
+    color: #3a3a7a;
+}
+
+.index-item-text {
+    font-size: 15px;
+    color: #333;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.index-item-time {
+    font-size: 12px;
+    color: #777;
+    font-style: italic;
+    flex-shrink: 0;
 }
 
 /* ── 滚动条在底部保持窄 ── */
