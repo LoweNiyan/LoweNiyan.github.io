@@ -1,31 +1,350 @@
-const now = new Date();
+// ── 配置 ──
+const SCROLL_SPEED = 3;
 
-const year = now.getFullYear(); // 年
-const month = now.getMonth(); // 月份
-const day = now.getDate();      // 日
-const hours = now.getHours();   // 时
-const minutes = now.getMinutes(); // 分
-const seconds = now.getSeconds(); // 秒
+// ── 文章 URL 列表在 js/articles.js 中定义 ──
 
-const scrollSpeedMultiplier = 10;
+// ── 工具函数 ──
+function formatDate(dateStr) {
+    var parts = dateStr.split('-');
+    return parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日';
+}
 
-const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-];
+function groupByDate(logList) {
+    var groups = new Map();
+    logList.forEach(function (log) {
+        if (!groups.has(log.date)) groups.set(log.date, []);
+        groups.get(log.date).push(log);
+    });
+    return groups;
+}
 
-const displayMonth = months[month]
+// ── 从博客页面获取文章元数据 ──
+var DEFAULT_IMAGE = '../../img/logimg/test_image.jpg';
 
-let displayDate = `${day} ${displayMonth} ${year}`
+function fetchArticleMeta(url) {
+    return fetch(url)
+        .then(function (r) {
+            var lastMod = r.headers.get('Last-Modified');
+            return r.text().then(function (html) { return { html: html, lastMod: lastMod }; });
+        })
+        .then(function (result) {
+            var html = result.html;
+            var lastMod = result.lastMod;
 
-$(document).ready(function() {
-    $('#date').text(displayDate);
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            var raw = doc.getElementById('article-meta').textContent;
+            var meta = JSON.parse(raw);
+            meta.type = 'article';
+            meta.url = url;
 
-    const bodyElement = document.querySelector('body');
-    bodyElement.addEventListener('wheel', function(e) {
+            // 无日期则从 Last-Modified 获取
+            if (!meta.date && lastMod) {
+                var d = new Date(lastMod);
+                meta.date = d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+                meta.time = String(d.getHours()).padStart(2, '0') + ':' +
+                    String(d.getMinutes()).padStart(2, '0');
+            }
+
+            // 无封面图则用默认图
+            if (!meta.image) meta.image = DEFAULT_IMAGE;
+
+            var bodyEl = doc.querySelector('.blog-body');
+            if (bodyEl) {
+                meta.content = bodyEl.innerHTML
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<[^>]+>/g, '')
+                    .trim();
+            }
+            return meta;
+        })
+        .catch(function () { return null; });
+}
+
+// ── 卡片渲染 ──
+function renderNoteCard(entry) {
+    var card = $('<div class="log-card-note"><time>' + entry.time + '</time><p>' + entry.content + '</p></div>');
+    card.data('entry', entry);
+    return card;
+}
+
+function renderArticleCard(entry) {
+    var imgHtml = entry.image
+        ? '<img src="' + entry.image + '" alt="">'
+        : '<span class="card-img-placeholder">+</span>';
+
+    var card = $('<div class="log-card-article"><div class="card-img-wrap">' + imgHtml + '</div>'
+        + '<div class="card-title">' + entry.title + '</div>'
+        + '<div class="card-summary">' + entry.summary + '</div>'
+        + '<div class="card-time">' + entry.time + '</div></div>');
+
+    card.data('article', entry);
+    card.data('entry', entry);
+    return card;
+}
+
+// ── 文章弹窗 ──
+function openModal(article) {
+    if (article.image) {
+        $('#modal_img').attr('src', article.image).addClass('has-img');
+    } else {
+        $('#modal_img').removeClass('has-img').attr('src', '');
+    }
+    $('#modal_title').text(article.title);
+    var timeStr = formatDate(article.date) + '  ' + article.time;
+    if (article.author) timeStr += '  ' + article.author;
+    $('#modal_time').text(timeStr);
+    $('#modal_body').html(article.content.replace(/\n/g, '<br>'));
+    if (article.url) {
+        $('#modal_link').attr('href', article.url).show();
+    } else {
+        $('#modal_link').hide();
+    }
+    $('body').css('overflow', 'hidden');
+    $('#modal').addClass('active');
+}
+
+function closeModal() {
+    $('body').css({ 'overflow-x': 'auto', 'overflow-y': 'hidden' });
+    $('#modal').removeClass('active');
+}
+
+// ── 滚动到卡片 ──
+function scrollToCard(cardEl) {
+    var rect = cardEl.getBoundingClientRect();
+    var cardCenterX = rect.left + rect.width / 2 + window.scrollX;
+    var targetX = cardCenterX - window.innerWidth / 2;
+    var maxScroll = document.body.scrollWidth - document.body.clientWidth;
+    document.body.scrollTo({
+        left: Math.max(0, Math.min(targetX, maxScroll)),
+        behavior: 'smooth'
+    });
+}
+
+// ── 索引弹窗（clip-path circle 辐射动画）──
+function getIndexBtnCenter() {
+    var btn = $('#index_btn')[0];
+    var rect = btn.getBoundingClientRect();
+    return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+    };
+}
+
+function openIndexOverlay() {
+    var $overlay = $('#index_overlay');
+    var center = getIndexBtnCenter();
+    $overlay.css({
+        transition: 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
+        'clip-path': 'circle(150% at ' + center.x + 'px ' + center.y + 'px)'
+    });
+    $overlay.addClass('active');
+    $('#index_btn').css({ 'box-shadow': 'none', 'color': '#000' }).text('close');
+}
+
+function closeIndexOverlay() {
+    var $overlay = $('#index_overlay');
+    var center = getIndexBtnCenter();
+    $overlay.css({
+        transition: 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
+        'clip-path': 'circle(0% at ' + center.x + 'px ' + center.y + 'px)'
+    });
+    $overlay.removeClass('active');
+    $('#index_btn').css({
+        'box-shadow': '0 0 0 1px #fff, 0 0 5px #ffffffcc, 0 0 10px #ffffff80, 0 0 50px #ffffff37',
+        'color': 'inherit'
+    }).text('index');
+}
+
+function buildIndex(logs) {
+    var $list = $('#index_list').empty();
+    var groups = groupByDate(logs);
+    var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
+
+    sortedDates.forEach(function (date) {
+        $list.append('<div class="index-date">' + formatDate(date) + '</div>');
+
+        groups.get(date).forEach(function (entry) {
+            var typeClass = 'index-badge-' + (entry.type === 'article' ? 'article' : 'note');
+            var badgeText = entry.type === 'article' ? 'A' : 'N';
+            var text = entry.title || entry.content;
+            if (text.length > 30) text = text.substring(0, 30) + '…';
+
+            var $item = $('<div class="index-item">'
+                + '<span class="index-badge ' + typeClass + '">' + badgeText + '</span>'
+                + '<span class="index-item-text">' + text + '</span>'
+                + '<span class="index-item-time">' + entry.time + '</span>'
+                + '</div>');
+
+            $item.data('entry', entry);
+
+            $item.on('click', function () {
+                var targetEntry = $(this).data('entry');
+                var cards = document.querySelectorAll('.log-card-note, .log-card-article');
+                for (var i = 0; i < cards.length; i++) {
+                    if ($(cards[i]).data('entry') === targetEntry) {
+                        scrollToCard(cards[i]);
+                        break;
+                    }
+                }
+                closeIndexOverlay();
+            });
+
+            $list.append($item);
+        });
+    });
+}
+
+// ── 页面入口 ──
+$(document).ready(function () {
+    // 初始化索引弹窗 clip-path
+    (function () {
+        var center = getIndexBtnCenter();
+        $('#index_overlay').css('clip-path', 'circle(0% at ' + center.x + 'px ' + center.y + 'px)');
+    })();
+
+    // 获取所有日志数据
+    var urls = window.articleUrls || [];
+    var fetches = urls.map(function (url) { return fetchArticleMeta(url); });
+
+    Promise.all(fetches).then(function (articleData) {
+        articleData = articleData.filter(function (a) { return a !== null; });
+        var allLogs = articleData.concat(window.notes || []);
+        allLogs.sort(function (a, b) {
+            var da = a.date + ' ' + (a.time || '00:00');
+            var db = b.date + ' ' + (b.time || '00:00');
+            return db.localeCompare(da);
+        });
+
+        // 渲染卡片
+        var groups = groupByDate(allLogs);
+        var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
+        var container = $('#log_container');
+
+        sortedDates.forEach(function (date) {
+            container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
+
+            groups.get(date).forEach(function (entry) {
+                if (entry.type === 'article') {
+                    container.append(renderArticleCard(entry));
+                } else {
+                    container.append(renderNoteCard(entry));
+                }
+            });
+        });
+
+        // 构建索引
+        buildIndex(allLogs);
+    });
+
+    // 横向滚轮（弹窗打开时不拦截）
+    document.body.addEventListener('wheel', function (e) {
+        if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
         if (e.deltaY !== 0) {
             e.preventDefault();
-            this.scrollLeft += e.deltaY * scrollSpeedMultiplier;
+            this.scrollLeft += e.deltaY * SCROLL_SPEED;
         }
     }, { passive: false });
+
+    // ── 事件绑定 ──
+
+    // 文章卡片点击
+    $('#log_container').on('click', '.log-card-article', function () {
+        var article = $(this).data('article');
+        if (article) openModal(article);
+    });
+
+    // 文章弹窗关闭
+    $('#modal').on('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+    $('.modal-close').on('click', closeModal);
+
+    // 阅读原文 hover → 面板下半红光
+    $('#modal_link').on('mouseenter', function () {
+        $('.modal-panel').addClass('glow');
+    }).on('mouseleave', function () {
+        $('.modal-panel').removeClass('glow');
+    });
+
+    // 索引按钮
+    $('#index_btn').on('click', function () {
+        if ($('#index_overlay').hasClass('active')) {
+            closeIndexOverlay();
+        } else {
+            openIndexOverlay();
+        }
+    });
+
+    // 索引弹窗关闭
+    $('#index_overlay').on('click', function (e) {
+        if (e.target === this) closeIndexOverlay();
+    });
+    $('.index-close').on('click', closeIndexOverlay);
+
+    // 键盘快捷键
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            if ($('#index_overlay').hasClass('active')) {
+                closeIndexOverlay();
+                return;
+            }
+            if ($('#modal').hasClass('active')) {
+                closeModal();
+                return;
+            }
+            return;
+        }
+
+        if ($('#modal').hasClass('active')) return;
+
+        if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) {
+            if ($('#index_overlay').hasClass('active')) {
+                closeIndexOverlay();
+            } else {
+                openIndexOverlay();
+            }
+            return;
+        }
+
+        if ($('#index_overlay').hasClass('active')) return;
+
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            var cards = document.querySelectorAll('.log-card-note, .log-card-article');
+            if (cards.length === 0) return;
+
+            var viewCenter = document.body.scrollLeft + window.innerWidth / 2;
+            var currentIdx = -1;
+            var minDist = Infinity;
+            for (var i = 0; i < cards.length; i++) {
+                var r = cards[i].getBoundingClientRect();
+                var cx = r.left + r.width / 2 + window.scrollX;
+                var dist = Math.abs(cx - viewCenter);
+                if (dist < minDist) { minDist = dist; currentIdx = i; }
+            }
+
+            var nextIdx = e.key === 'ArrowRight'
+                ? Math.min(currentIdx + 1, cards.length - 1)
+                : Math.max(currentIdx - 1, 0);
+
+            if (nextIdx !== currentIdx) scrollToCard(cards[nextIdx]);
+        }
+    });
+
+    // 键盘提示：滚动后短暂隐藏
+    (function () {
+        var showTimer;
+        var $hint = $('.kb-hint');
+
+        $(window).on('scroll', function () {
+            $hint.css('opacity', 0);
+            clearTimeout(showTimer);
+            showTimer = setTimeout(function () {
+                $hint.css('opacity', 1);
+            }, 2000);
+        });
+    })();
 });

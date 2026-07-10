@@ -9,7 +9,7 @@ main {
     position: relative;
     width: 100%;
     background-color: #000;
-    font-family: 'green screen';
+    font-family: 'Good Old DOS', monospace;
     top: -6vh;
 }
 
@@ -180,7 +180,7 @@ a.more_btn:hover {
     display: flex;
     padding: 32px;
     color: #333;
-    background-color: #fff;
+    background-color: #ccc;
     z-index: 100;
     clip-path: circle(0% at 104.758px 821.5px);
 }
@@ -191,7 +191,7 @@ a.more_btn:hover {
 
 .more_page h1 {
     font-size: 100px;
-    font-family: "Green screen";
+    font-family: "Good Old DOS", monospace;
 }
 
 .more_menu li a{

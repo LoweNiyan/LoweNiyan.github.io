@@ -123,8 +123,10 @@ body {
 }
 
 @font-face {
-  font-family: 'green screen';
-  src: url('../fonts/Green Screen.ttf');
+  font-family: 'Good Old DOS';
+  src: url('../fonts/GoodOldDOS/Good Old DOS.ttf');
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face {
