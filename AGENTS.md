@@ -21,7 +21,7 @@
 | `style/fluent.css` | Fluent-style titlebar/navbar component |
 | `style/normalize.css` | CSS reset |
 | `animation/animation.css` | Shared animations |
-| `fonts/` | Self-hosted fonts (Rubik, OPPOSans, JetBrainsMono, Segoe Icons, Green Screen, Times) |
+| `fonts/` | Self-hosted fonts (Rubik, OPPOSans, JetBrainsMono, Segoe Icons, Good Old DOS, Times) |
 | `404.htm` | Custom 404 page |
 
 ## Page wiring conventions

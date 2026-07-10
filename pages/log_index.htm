@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
     <meta content="telephone=no" name="format-detection">
-    <title>log</title>
+    <title>动态</title>
     <link rel="stylesheet" href="../style/normalize.css">
     <link rel="stylesheet" href="../style/style.css">
     <link rel="stylesheet" href="../animation/animation.css">
@@ -16,47 +16,29 @@
     <script src="../js/log_index.js"></script>
 </head>
 <body>
-    <main>
-        <h1>today</h1>
-        <h2 id="date" class="date"></h2>
-        <article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-    </main>
-    <main>
-        <h1>today</h1>
-        <h2 id="date" class="date"></h2>
-        <article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-            <p>test test test test test test test test test test</p>
-        </article>
-    </main>
+    <nav class="log-sidebar">
+        <div class="sidebar-scroll" id="sidebar_scroll">
+            <h1 class="progress-title progress-title-inner">动态</h1>
+            <div class="progress-bar">
+                <div class="progress-line"></div>
+                <div class="progress-indicator"></div>
+                <div id="progress_nodes" class="progress-nodes"></div>
+            </div>
+        </div>
+        <h1 class="progress-title progress-title-fixed" id="title_fixed">动态</h1>
+        <div class="title-mask" id="title_mask"></div>
+        <p id="date" class="progress-date"></p>
+    </nav>
+    <a href="../index.htm" class="log-back-btn">↖back</a>
+    <div id="log_container" class="log-track"></div>
+    <div id="modal" class="modal-overlay">
+        <div class="modal-panel">
+            <button class="modal-close">&times;</button>
+            <img id="modal_img" class="modal-img" src="" alt="">
+            <h2 id="modal_title" class="modal-title"></h2>
+            <time id="modal_time" class="modal-time"></time>
+            <div id="modal_body" class="modal-body"></div>
+        </div>
+    </div>
 </body>
 </html>

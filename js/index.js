@@ -19,6 +19,7 @@ $(document).ready(function() {
     clearTimeout(closeTimer);
 
     if (moreContainer.hasClass('active')) {
+        $('a.more_btn').css('box-shadow','0 0 0 1px #fff, 0 0 5px  #ffffffcc, 0 0 10px #ffffff80, 0 0 50px #ffffff37');
         // === 关闭 ===
         // 暂停打字机但不清理文字（动画期间保留）
         if (printerHandle) printerHandle.stop();
@@ -40,6 +41,7 @@ $(document).ready(function() {
         }, 600);
 
     } else {
+        $('a.more_btn').css('box-shadow','none');
         // === 打开 ===
         moreContainer.css({
             'transition': 'clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1)',
