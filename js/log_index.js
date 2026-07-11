@@ -114,9 +114,11 @@ function closeModal() {
 // ── 滚动到卡片 ──
 function scrollToCard(cardEl) {
     var rect = cardEl.getBoundingClientRect();
-    var cardCenterX = rect.left + rect.width / 2 + window.scrollX;
+    var bodyScroll = document.body.scrollLeft;          // 使用实际滚动容器的偏移
+    var cardCenterX = rect.left + rect.width / 2 + bodyScroll;
     var targetX = cardCenterX - window.innerWidth / 2;
     var maxScroll = document.body.scrollWidth - document.body.clientWidth;
+
     document.body.scrollTo({
         left: Math.max(0, Math.min(targetX, maxScroll)),
         behavior: 'smooth'
@@ -199,6 +201,17 @@ function buildIndex(logs) {
 
 // ── 页面入口 ──
 $(document).ready(function () {
+    var hintTimer;
+    var $hint = $('.kb-hint');
+
+    function hideHintTemporarily() {
+        $hint.css('opacity', 0);
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(function () {
+            $hint.css('opacity', 1);
+        }, 2000);
+    }
+
     // 初始化索引弹窗 clip-path
     (function () {
         var center = getIndexBtnCenter();
@@ -245,9 +258,9 @@ $(document).ready(function () {
         if (e.deltaY !== 0) {
             e.preventDefault();
             this.scrollLeft += e.deltaY * SCROLL_SPEED;
+            hideHintTemporarily();   // ← 新增
         }
     }, { passive: false });
-
     // ── 事件绑定 ──
 
     // 文章卡片点击
@@ -313,38 +326,15 @@ $(document).ready(function () {
 
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
             e.preventDefault();
-            var cards = document.querySelectorAll('.log-card-note, .log-card-article');
-            if (cards.length === 0) return;
 
-            var viewCenter = document.body.scrollLeft + window.innerWidth / 2;
-            var currentIdx = -1;
-            var minDist = Infinity;
-            for (var i = 0; i < cards.length; i++) {
-                var r = cards[i].getBoundingClientRect();
-                var cx = r.left + r.width / 2 + window.scrollX;
-                var dist = Math.abs(cx - viewCenter);
-                if (dist < minDist) { minDist = dist; currentIdx = i; }
-            }
+            if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
 
-            var nextIdx = e.key === 'ArrowRight'
-                ? Math.min(currentIdx + 1, cards.length - 1)
-                : Math.max(currentIdx - 1, 0);
+            var delta = e.key === 'ArrowRight' ? (100 * SCROLL_SPEED) : -(100 * SCROLL_SPEED);
+            var maxScroll = document.body.scrollWidth - document.body.clientWidth;
 
-            if (nextIdx !== currentIdx) scrollToCard(cards[nextIdx]);
+            document.body.scrollLeft = Math.max(0, Math.min(document.body.scrollLeft + delta, maxScroll));
+
+            hideHintTemporarily();
         }
     });
-
-    // 键盘提示：滚动后短暂隐藏
-    (function () {
-        var showTimer;
-        var $hint = $('.kb-hint');
-
-        $(window).on('scroll', function () {
-            $hint.css('opacity', 0);
-            clearTimeout(showTimer);
-            showTimer = setTimeout(function () {
-                $hint.css('opacity', 1);
-            }, 2000);
-        });
-    })();
 });
