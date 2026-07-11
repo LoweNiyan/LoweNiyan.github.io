@@ -5,9 +5,9 @@ var articleUrls = [
 
 // ── 短笔记 ──
 var notes = [
-    { type: 'note', date: '2026-07-11', time: '22:00', content: '[test] 喵…今天挠了一下午纸箱爪子都麻了，该去晒晒月光了喵 (´-ω-`)' },
+    { type: 'note', date: '2026-07-11', time: '22:00', content: '[test] 喵…今天挠了一下午纸箱爪子都麻了，该去晒晒月光了喵 (´-ω-`)', image: '../img/logimg/test_image.jpg' },
     { type: 'note', date: '2026-07-11', time: '18:30', content: '[test] 人类为什么要出门呢喵，每天在家晒太阳不好吗…可惜外面的小鸟太吵了' },
-    { type: 'note', date: '2026-07-11', time: '15:00', content: '[test] 发现一个新的猫罐头口味！三文鱼啫喱，但主人说太贵了不给我买喵…(´;ω;`)' },
+    { type: 'note', date: '2026-07-11', time: '15:00', content: '[test] 发现一个新的猫罐头口味！三文鱼啫喱，但主人说太贵了不给我买喵…(´;ω;`)', image: '../img/logimg/test_image.jpg' },
     { type: 'note', date: '2026-07-11', time: '11:00', content: '[test] 今天打碎的杯子比昨天少了一只，是不是说明我的猫爪控制力进步了喵 ✧(≖ ◡ ≖✿)' },
     { type: 'note', date: '2026-07-11', time: '08:00', content: '[test] 早上被快递吵醒了喵，明明昨晚追激光笔追到凌晨三点…快递员还摸了我的头说猫咪乖 (╯°□°）╯' },
     { type: 'note', date: '2026-07-10', time: '23:00', content: '[test] 深夜最适合思考猫生了喵…比如明天吃什么罐头，睡哪个纸箱，要不要挠沙发' },

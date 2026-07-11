@@ -128,10 +128,24 @@ a.index-btn:hover {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .log-card-note:hover {
-    border-color: #333;
+    border-color: #ffffff55;
+    box-shadow:
+        0 0 30px  #ffffff66,
+        0 0 80px  #ffffff33,
+        0 0 180px #ffffff14;
+}
+
+.note-img {
+    width: calc(100% + 56px);
+    height: 180px;
+    object-fit: cover;
+    margin: -24px -28px 16px;
+    border-radius: 2px 2px 0 0;
 }
 
 .log-card-note time {
@@ -162,10 +176,15 @@ a.index-btn:hover {
     display: flex;
     flex-direction: column;
     cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .log-card-article:hover {
-    border-color: #444;
+    border-color: #ffffff55;
+    box-shadow:
+        0 0 40px  #ffffff66,
+        0 0 100px #ffffff33,
+        0 0 220px #ffffff14;
 }
 
 .card-img-wrap {
@@ -249,7 +268,7 @@ a.index-btn:hover {
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: 40px 40px 0;
+    padding: 40px 40px 24px;
 }
 
 .modal-scroll {
@@ -339,7 +358,7 @@ a.index-btn:hover {
     font-size: 18px;
     color: #888;
     text-decoration: none;
-    padding: 14px 0 40px;
+    padding: 14px 0 24px;
     flex-shrink: 0;
     transition: color 0.2s, text-shadow 0.3s;
 }

@@ -65,7 +65,11 @@ function fetchArticleMeta(url) {
 
 // ── 卡片渲染 ──
 function renderNoteCard(entry) {
-    var card = $('<div class="log-card-note"><time>' + entry.time + '</time><p>' + entry.content + '</p></div>');
+    var imgHtml = entry.image
+        ? '<img class="note-img" src="' + entry.image + '" alt="">'
+        : '';
+    var card = $('<div class="log-card-note">' + imgHtml
+        + '<time>' + entry.time + '</time><p>' + entry.content + '</p></div>');
     card.data('entry', entry);
     return card;
 }
@@ -85,23 +89,34 @@ function renderArticleCard(entry) {
     return card;
 }
 
-// ── 文章弹窗 ──
-function openModal(article) {
-    if (article.image) {
-        $('#modal_img').attr('src', article.image).addClass('has-img');
+// ── 弹窗（兼容文章和笔记）──
+function openModal(entry) {
+    if (entry.image) {
+        $('#modal_img').attr('src', entry.image).addClass('has-img');
     } else {
         $('#modal_img').removeClass('has-img').attr('src', '');
     }
-    $('#modal_title').text(article.title);
-    var timeStr = formatDate(article.date) + '  ' + article.time;
-    if (article.author) timeStr += '  ' + article.author;
-    $('#modal_time').text(timeStr);
-    $('#modal_body').html(article.content.replace(/\n/g, '<br>'));
-    if (article.url) {
-        $('#modal_link').attr('href', article.url).show();
-    } else {
+
+    if (entry.type === 'note') {
+        // 笔记：无标题，无原文链接
+        $('#modal_title').text('');
+        $('#modal_body').html(entry.content);
         $('#modal_link').hide();
+    } else {
+        // 文章
+        $('#modal_title').text(entry.title);
+        $('#modal_body').html((entry.content || '').replace(/\n/g, '<br>'));
+        if (entry.url) {
+            $('#modal_link').attr('href', entry.url).show();
+        } else {
+            $('#modal_link').hide();
+        }
     }
+
+    var timeStr = formatDate(entry.date) + '  ' + entry.time;
+    if (entry.author) timeStr += '  ' + entry.author;
+    $('#modal_time').text(timeStr);
+
     $('body').css('overflow', 'hidden');
     $('#modal').addClass('active');
 }
@@ -267,6 +282,12 @@ $(document).ready(function () {
     $('#log_container').on('click', '.log-card-article', function () {
         var article = $(this).data('article');
         if (article) openModal(article);
+    });
+
+    // 笔记卡片点击
+    $('#log_container').on('click', '.log-card-note', function () {
+        var note = $(this).data('entry');
+        if (note) openModal(note);
     });
 
     // 文章弹窗关闭
