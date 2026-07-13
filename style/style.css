@@ -41,15 +41,20 @@ code {
 }
 
 kbd {
-    margin-right: 0.5em;
-    margin-left: 0.5em;
+    display: inline-block;
+    margin-right: 0.3em;
+    margin-left: 0.3em;
     padding-right: 0.3em;
     padding-left: 0.3em;
     border-radius: 5px;
     border: 1px solid #fff;
     background-color: #333;
-    box-shadow: 0 2px 0 0 #fff;
+    color: #fff;
+    text-shadow: #fff 0 0 1px;
+    box-shadow: 0 2px 0 0 #fff,0 3px 0 1px #000;
     font-family: "JetBrainsMono", "opposans";
+    font-size: 90%;
+    transform: translateY(-2px);
 }
 
 time {

@@ -117,24 +117,25 @@ function openModal(entry) {
     if (entry.author) timeStr += '  ' + entry.author;
     $('#modal_time').text(timeStr);
 
-    $('body').css('overflow', 'hidden');
     $('#modal').addClass('active');
+    $('#viewport_container')[0].scrollTo({top: window.innerHeight, behavior: 'smooth'});
 }
 
 function closeModal() {
-    $('body').css({ 'overflow-x': 'auto', 'overflow-y': 'hidden' });
     $('#modal').removeClass('active');
+    $('#viewport_container')[0].scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // ── 滚动到卡片 ──
 function scrollToCard(cardEl) {
+    var vp = $('.log-viewport')[0];
     var rect = cardEl.getBoundingClientRect();
-    var bodyScroll = document.body.scrollLeft;          // 使用实际滚动容器的偏移
+    var bodyScroll = vp.scrollLeft;
     var cardCenterX = rect.left + rect.width / 2 + bodyScroll;
     var targetX = cardCenterX - window.innerWidth / 2;
-    var maxScroll = document.body.scrollWidth - document.body.clientWidth;
+    var maxScroll = vp.scrollWidth - vp.clientWidth;
 
-    document.body.scrollTo({
+    vp.scrollTo({
         left: Math.max(0, Math.min(targetX, maxScroll)),
         behavior: 'smooth'
     });
@@ -220,11 +221,11 @@ $(document).ready(function () {
     var $hint = $('.kb-hint');
 
     function hideHintTemporarily() {
-        $hint.css('opacity', 0);
+        $hint.css('opacity', 0.2);
         clearTimeout(hintTimer);
         hintTimer = setTimeout(function () {
             $hint.css('opacity', 1);
-        }, 2000);
+        }, 1000);
     }
 
     // 初始化索引弹窗 clip-path
@@ -268,12 +269,12 @@ $(document).ready(function () {
     });
 
     // 横向滚轮（弹窗打开时不拦截）
-    document.body.addEventListener('wheel', function (e) {
+    $('.log-viewport')[0].addEventListener('wheel', function (e) {
         if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
         if (e.deltaY !== 0) {
             e.preventDefault();
             this.scrollLeft += e.deltaY * SCROLL_SPEED;
-            hideHintTemporarily();   // ← 新增
+            hideHintTemporarily();
         }
     }, { passive: false });
     // ── 事件绑定 ──
@@ -350,10 +351,11 @@ $(document).ready(function () {
 
             if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
 
+            var vp = $('.log-viewport')[0];
             var delta = e.key === 'ArrowRight' ? (100 * SCROLL_SPEED) : -(100 * SCROLL_SPEED);
-            var maxScroll = document.body.scrollWidth - document.body.clientWidth;
+            var maxScroll = vp.scrollWidth - vp.clientWidth;
 
-            document.body.scrollLeft = Math.max(0, Math.min(document.body.scrollLeft + delta, maxScroll));
+            vp.scrollLeft = Math.max(0, Math.min(vp.scrollLeft + delta, maxScroll));
 
             hideHintTemporarily();
         }
