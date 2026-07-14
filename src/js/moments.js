@@ -1,9 +1,6 @@
 // ── 配置 ──
 const SCROLL_SPEED = 3;
 
-import {articleUrls} from '../content/logs.js'
-import {notes} from '../content/logs.js'
-
 // ── 工具函数 ──
 function formatDate(dateStr) {
     var parts = dateStr.split('-');
@@ -19,56 +16,16 @@ function groupByDate(logList) {
     return groups;
 }
 
-// ── 从博客页面获取文章元数据 ──
-var DEFAULT_IMAGE = '../../img/logimg/test_image.jpg';
-
-function fetchArticleMeta(url) {
-    return fetch(url)
-        .then(function (r) {
-            var lastMod = r.headers.get('Last-Modified');
-            return r.text().then(function (html) { return { html: html, lastMod: lastMod }; });
-        })
-        .then(function (result) {
-            var html = result.html;
-            var lastMod = result.lastMod;
-
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(html, 'text/html');
-            var raw = doc.getElementById('article-meta').textContent;
-            var meta = JSON.parse(raw);
-            meta.type = 'article';
-            meta.url = url;
-
-            // 无日期则从 Last-Modified 获取
-            if (!meta.date && lastMod) {
-                var d = new Date(lastMod);
-                meta.date = d.getFullYear() + '-' +
-                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(d.getDate()).padStart(2, '0');
-                meta.time = String(d.getHours()).padStart(2, '0') + ':' +
-                    String(d.getMinutes()).padStart(2, '0');
-            }
-
-            // 无封面图则用默认图
-            if (!meta.image) meta.image = DEFAULT_IMAGE;
-
-            var bodyEl = doc.querySelector('.blog-body');
-            if (bodyEl) {
-                meta.content = bodyEl.innerHTML
-                    .replace(/<br\s*\/?>/gi, '\n')
-                    .replace(/<[^>]+>/g, '')
-                    .trim();
-            }
-            return meta;
-        })
-        .catch(function () { return null; });
+/** 创建 <img> 元素，统一处理 src/alt/class */
+function createImg(src, className) {
+    if (!src) return null;
+    return $('<img>').attr('src', src).attr('alt', '').addClass(className || '');
 }
 
 // ── 卡片渲染 ──
 function renderNoteCard(entry) {
-    var imgHtml = entry.image
-        ? '<img class="note-img" src="' + entry.image + '" alt="">'
-        : '';
+    var $img = createImg(entry.image, 'note-img');
+    var imgHtml = $img ? $img.prop('outerHTML') : '';
     var card = $('<div class="log-card-note">' + imgHtml
         + '<time>' + entry.time + '</time><p>' + entry.content + '</p></div>');
     card.data('entry', entry);
@@ -76,14 +33,33 @@ function renderNoteCard(entry) {
 }
 
 function renderArticleCard(entry) {
-    var imgHtml = entry.image
-        ? '<img src="' + entry.image + '" alt="">'
-        : '<span class="card-img-placeholder">+</span>';
+    var card = $('<div class="log-card-article">');
+    var imgWrap = $('<div class="card-img-wrap">');
 
-    var card = $('<div class="log-card-article"><div class="card-img-wrap">' + imgHtml + '</div>'
-        + '<div class="card-title">' + entry.title + '</div>'
-        + '<div class="card-summary">' + entry.summary + '</div>'
-        + '<div class="card-time">' + entry.time + '</div></div>');
+    if (entry.image) {
+        imgWrap.append(createImg(entry.image));
+    } else {
+        imgWrap.append($('<span class="card-img-placeholder">+</span>'));
+    }
+    card.append(imgWrap);
+
+    card.append($('<div class="card-title">').text(entry.title));
+
+    if (entry.tags && entry.tags.length) {
+        var tagsDiv = $('<div class="card-tags">');
+        entry.tags.forEach(function (t) {
+            tagsDiv.append($('<span class="card-tag">').text(t));
+        });
+        card.append(tagsDiv);
+    }
+
+    card.append($('<div class="card-summary">').text(entry.summary));
+
+    if (entry.author) {
+        card.append($('<div class="card-author">').text(entry.author));
+    }
+
+    card.append($('<div class="card-time">').text(entry.time));
 
     card.data('article', entry);
     card.data('entry', entry);
@@ -99,19 +75,25 @@ function openModal(entry) {
     }
 
     if (entry.type === 'note') {
-        // 笔记：无标题，无原文链接
         $('#modal_title').text('');
         $('#modal_body').html(entry.content);
         $('#modal_link').hide();
+        $('#modal_tags').empty();
     } else {
         // 文章
         $('#modal_title').text(entry.title);
-        $('#modal_body').html((entry.content || '').replace(/\n/g, '<br>'));
+        $('#modal_body').html((entry.content || entry.summary || '').replace(/\n/g, '<br>'));
         if (entry.url) {
             $('#modal_link').attr('href', entry.url).show();
         } else {
             $('#modal_link').hide();
         }
+        // 标签
+        var tagsHtml = '';
+        if (entry.tags && entry.tags.length) {
+            tagsHtml = entry.tags.map(function (t) { return '<span class="modal-tag">' + t + '</span>'; }).join('');
+        }
+        $('#modal_tags').html(tagsHtml);
     }
 
     var timeStr = formatDate(entry.date) + '  ' + entry.time;
@@ -218,6 +200,20 @@ function buildIndex(logs) {
 
 // ── 页面入口 ──
 $(document).ready(function () {
+    // 从注入的 JSON 读取数据
+    var dataEl = document.getElementById('moments-data');
+    if (!dataEl) {
+        console.error('moments-data not found');
+        return;
+    }
+    var allData;
+    try {
+        allData = JSON.parse(dataEl.textContent);
+    } catch (e) {
+        console.error('Failed to parse moments-data', e);
+        return;
+    }
+
     var hintTimer;
     var $hint = $('.kb-hint');
 
@@ -235,39 +231,43 @@ $(document).ready(function () {
         $('#index_overlay').css('clip-path', 'circle(0% at ' + center.x + 'px ' + center.y + 'px)');
     })();
 
-    // 获取所有日志数据
-    var urls = articleUrls || [];
-    var fetches = urls.map(function (url) { return fetchArticleMeta(url); });
-
-    Promise.all(fetches).then(function (articleData) {
-        articleData = articleData.filter(function (a) { return a !== null; });
-        var allLogs = articleData.concat(notes || []);
-        allLogs.sort(function (a, b) {
-            var da = a.date + ' ' + (a.time || '00:00');
-            var db = b.date + ' ' + (b.time || '00:00');
-            return db.localeCompare(da);
-        });
-
-        // 渲染卡片
-        var groups = groupByDate(allLogs);
-        var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
-        var container = $('#log_container');
-
-        sortedDates.forEach(function (date) {
-            container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
-
-            groups.get(date).forEach(function (entry) {
-                if (entry.type === 'article') {
-                    container.append(renderArticleCard(entry));
-                } else {
-                    container.append(renderNoteCard(entry));
-                }
-            });
-        });
-
-        // 构建索引
-        buildIndex(allLogs);
+    // 合并文章和笔记
+    var articleData = allData.articles || [];
+    var notes = allData.notes || [];
+    var allLogs = articleData.concat(notes);
+    allLogs.sort(function (a, b) {
+        var da = a.date + ' ' + (a.time || '00:00');
+        var db = b.date + ' ' + (b.time || '00:00');
+        return db.localeCompare(da);
     });
+
+    // 渲染卡片
+    var groups = groupByDate(allLogs);
+    var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
+    var container = $('#log_container');
+
+    sortedDates.forEach(function (date) {
+        container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
+
+        groups.get(date).forEach(function (entry) {
+            if (entry.type === 'article') {
+                container.append(renderArticleCard(entry));
+            } else {
+                container.append(renderNoteCard(entry));
+            }
+        });
+    });
+
+    // 构建索引
+    buildIndex(allLogs);
+
+    // 如果 URL hash 是 #index，自动打开索引
+    if (window.location.hash === '#index') {
+        // 需要等索引弹窗的 clip-path 初始化完成
+        setTimeout(function () {
+            openIndexOverlay();
+        }, 100);
+    }
 
     // 横向滚轮（弹窗打开时不拦截）
     $('.log-viewport')[0].addEventListener('wheel', function (e) {
@@ -278,6 +278,7 @@ $(document).ready(function () {
             hideHintTemporarily();
         }
     }, { passive: false });
+
     // ── 事件绑定 ──
 
     // 文章卡片点击
@@ -292,7 +293,7 @@ $(document).ready(function () {
         if (note) openModal(note);
     });
 
-    // 文章弹窗关闭
+    // 弹窗关闭
     $('#modal').on('click', function (e) {
         if (e.target === this) closeModal();
     });

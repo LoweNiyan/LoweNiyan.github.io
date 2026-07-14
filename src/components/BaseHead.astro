@@ -6,6 +6,7 @@ import type { ImageMetadata } from 'astro';
 import FallbackImage from '../assets/img/test_image.jpg';
 import { SITE_TITLE } from '../consts';
 import { Font } from 'astro:assets';
+import { Image } from 'astro:assets'
 
 interface Props {
 	title: string;
@@ -16,6 +17,7 @@ interface Props {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 const { title, description, image = FallbackImage } = Astro.props;
+const images = import.meta.glob<{ default: ImageMetadata }>('/src/assets/*.{jpeg,jpg,png,gif}');
 ---
 
 <!-- Global Metadata -->

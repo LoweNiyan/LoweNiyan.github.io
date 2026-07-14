@@ -1,0 +1,32 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { Font } from 'astro:assets';
+
+const pageTitle = "About - " + SITE_TITLE;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={pageTitle} description={SITE_DESCRIPTION} />
+    <style>
+      body {
+        background: #000;
+        color: #ddd;
+        font-family: inherit;
+      }
+      main {
+        max-width: 680px;
+        margin: 4em auto;
+        padding: 0 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>关于</h1>
+      <p>这里还没写东西喵～</p>
+    </main>
+  </body>
+</html>

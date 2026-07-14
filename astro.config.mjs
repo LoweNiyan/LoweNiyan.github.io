@@ -8,6 +8,10 @@ export default defineConfig({
   site: "https://nyan.work",
   trailingSlash: "never",
 
+  redirects: {
+    '/blog': '/moments#index',
+  },
+
   fonts: [
       {
           provider: fontProviders.local(),

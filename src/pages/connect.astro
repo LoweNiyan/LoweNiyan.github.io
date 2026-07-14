@@ -1,0 +1,49 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const pageTitle = "Connect - " + SITE_TITLE;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={pageTitle} description={SITE_DESCRIPTION} />
+    <style>
+      body {
+        background: #000;
+        color: #ddd;
+        font-family: inherit;
+      }
+      main {
+        max-width: 680px;
+        margin: 4em auto;
+        padding: 0 1em;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        margin: 1em 0;
+      }
+      a {
+        color: #ddd;
+        font-size: 1.2em;
+      }
+      a:hover {
+        color: #ff284f;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>find me</h1>
+      <ul>
+        <li><a href="https://space.bilibili.com/229582128">Bilibili: 洛濔</a></li>
+        <li><a href="https://github.com/LoweNiyan">Github: NyaLowe</a></li>
+        <li>微信公众号</li>
+      </ul>
+    </main>
+  </body>
+</html>
