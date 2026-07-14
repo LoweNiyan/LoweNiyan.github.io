@@ -1,0 +1,53 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import '../style/moments.css';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={"Moments - " + SITE_TITLE} description={SITE_DESCRIPTION} />
+		<script src="../js/moments.js"></script>
+		<script src="../content/logs.js"></script>
+	</head>
+	<body>
+	    <div class="viewport-container" id="viewport_container">
+	        <div class="log-viewport">
+	        <a id="index_btn" class="index-btn">index</a>
+	        <div id="log_container" class="log-track"></div>
+			
+	        <!-- 索引弹窗 -->
+	        <div id="index_overlay" class="index-overlay">
+	            <div class="index-page">
+	                <h1 class="index-title">索引</h1>
+	                <div class="index-content">
+	                    <div id="index_list" class="index-list"></div>
+	                    <div class="index-blank"></div>
+	                </div>
+	                <div class="index-mask"></div>
+	            </div>
+	        </div>
+		
+	        <!-- 键盘提示 -->
+	        <div class="kb-hint"><kbd>←</kbd><kbd>→</kbd> 切换 &nbsp; <kbd>i</kbd> 索引 &nbsp; <kbd>Esc</kbd> 关闭</div>
+	        </div>
+		
+	        <div class="modal-viewport">
+	        <!-- 弹窗（从底部滑入） -->
+	        <div id="modal" class="modal-overlay">
+	            <div class="modal-panel">
+	                <button class="modal-close">&times;</button>
+	                <h2 id="modal_title" class="modal-title"></h2>
+	                <time id="modal_time" class="modal-time"></time>
+	                <div class="modal-scroll">
+	                    <img id="modal_img" class="modal-img" src="" alt="">
+	                    <div id="modal_body" class="modal-body"></div>
+	                </div>
+	                <a id="modal_link" class="modal-link" href="">阅读原文 →</a>
+	            </div>
+	        </div>
+	        </div>
+	    </div>
+	</body>
+</html>

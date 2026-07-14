@@ -1,3 +1,5 @@
+import {printer} from './script.js';
+
 // 别看了，videcoding 的垃圾代码(〃ﾉωﾉ) 
 
 $(document).ready(function() {
@@ -12,7 +14,7 @@ $(document).ready(function() {
     const btnRect = this.getBoundingClientRect();
     const x = btnRect.left + btnRect.width / 2;
     const y = btnRect.top + btnRect.height / 2;
-    const MORE_INFO_TEXT = "你好，我是Lowenya，这是我的个人主页。";
+    const MORE_INFO_TEXT = "你好，我或许是洛濔吧，这里大概就是我的个人主页owo。";
     const MORE_INFO_ELEMENT = $('#more_info_content');
 
     // 取消待执行的关闭清理（如果有的话）

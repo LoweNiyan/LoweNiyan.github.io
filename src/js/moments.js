@@ -1,7 +1,8 @@
 // ── 配置 ──
 const SCROLL_SPEED = 3;
 
-// ── 文章 URL 列表在 js/articles.js 中定义 ──
+import {articleUrls} from '../content/logs.js'
+import {notes} from '../content/logs.js'
 
 // ── 工具函数 ──
 function formatDate(dateStr) {
@@ -235,12 +236,12 @@ $(document).ready(function () {
     })();
 
     // 获取所有日志数据
-    var urls = window.articleUrls || [];
+    var urls = articleUrls || [];
     var fetches = urls.map(function (url) { return fetchArticleMeta(url); });
 
     Promise.all(fetches).then(function (articleData) {
         articleData = articleData.filter(function (a) { return a !== null; });
-        var allLogs = articleData.concat(window.notes || []);
+        var allLogs = articleData.concat(notes || []);
         allLogs.sort(function (a, b) {
             var da = a.date + ' ' + (a.time || '00:00');
             var db = b.date + ' ' + (b.time || '00:00');

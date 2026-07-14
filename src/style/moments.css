@@ -1,10 +1,4 @@
 /* ── 页面基础 ── */
-@font-face {
-    font-family: "TianChengBit";
-    src: url("../fonts/TianChengBit/TianChengBit-Regular.otf") format("opentype");
-    font-weight: normal;
-    font-style: normal;
-}
 
 body {
     height: 100vh;

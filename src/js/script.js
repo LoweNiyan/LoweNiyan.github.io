@@ -1,4 +1,4 @@
-function printer(text, element, speed) {
+export function printer(text, element, speed) {
     let timer;
     let i = 0;
     let active = true;

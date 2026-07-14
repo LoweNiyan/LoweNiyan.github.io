@@ -1,3 +1,8 @@
+:root {
+    --serif-font: serif;
+    --mono-font: var(--font-mono), monospace;
+}
+
 /* 文本样式 */
 em {
     font-weight: 900;
@@ -17,7 +22,6 @@ mark {
 
 i {
     font-style: italic;
-    font-family: "Times New Roman", serif;
 }
 
 samp {
@@ -27,7 +31,7 @@ samp {
     padding-left: 0.5em;
     border-radius: 5px;
     background-color: #333;
-    font-family: "JetBrainsMono", "opposans";
+    font-family: var(--mono-font);
 }
 
 code {
@@ -37,7 +41,7 @@ code {
     padding-left: 0.5em;
     border-radius: 5px;
     background-color: #333;
-    font-family: "JetBrainsMono", "opposans";
+    font-family: var(--mono-font);
 }
 
 kbd {
@@ -52,18 +56,18 @@ kbd {
     color: #fff;
     text-shadow: #fff 0 0 1px;
     box-shadow: 0 2px 0 0 #fff,0 3px 0 1px #000;
-    font-family: "JetBrainsMono", "opposans";
+    font-family: var(--mono-font);
     font-size: 90%;
     transform: translateY(-2px);
 }
 
 time {
-    font-family: "JetBrainsMono", "opposans";
+    font-family: var(--mono-font);
 }
 
 var {
     font-style: italic;
-    font-family: "Times New Roman";
+    font-family: var(--serif-font);
 }
 
 a {

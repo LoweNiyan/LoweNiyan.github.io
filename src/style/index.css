@@ -1,3 +1,7 @@
+:root {
+    --pixel-font: var(--font-pixel-dos), monospace;
+}
+
 main {
     width: 100%;
     height: 100%;
@@ -9,7 +13,7 @@ main {
     position: relative;
     width: 100%;
     background-color: #000;
-    font-family: 'Good Old DOS', monospace;
+    font-family: var(--pixel-font);
     top: -6vh;
 }
 
@@ -191,7 +195,7 @@ a.more_btn:hover {
 
 .more_page h1 {
     font-size: 100px;
-    font-family: "Good Old DOS", monospace;
+    font-family: var(--pixel-font);
 }
 
 .more_menu li a{
