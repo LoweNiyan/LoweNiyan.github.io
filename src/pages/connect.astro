@@ -2,6 +2,9 @@
 import BaseHead from '../components/BaseHead.astro';
 import MiniNav from '../components/MiniNav.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { Image } from 'astro:assets';
+import weixinQR from '../assets/img/公众号二维码.jpg'
+import '../style/connect.css';
 
 const pageTitle = "Connect - " + SITE_TITLE;
 ---
@@ -10,46 +13,121 @@ const pageTitle = "Connect - " + SITE_TITLE;
 <html lang="zh-CN">
   <head>
     <BaseHead title={pageTitle} description={SITE_DESCRIPTION} />
-    <style>
-      body {
-        background: #000;
-        color: #ddd;
-        font-family: inherit;
-        margin: 0;
-      }
-      main {
-        max-width: 680px;
-        margin: 0 auto;
-        padding: 4em 1em;
-        min-height: 100vh;
-        box-sizing: border-box;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-      li {
-        margin: 1em 0;
-      }
-      a {
-        color: #ddd;
-        font-size: 1.2em;
-      }
-      a:hover {
-        color: #ff284f;
-      }
-    </style>
   </head>
   <body>
     <MiniNav>
-      <main>
-        <h1>find me</h1>
-        <ul>
-          <li><a href="https://space.bilibili.com/229582128">Bilibili: 洛濔</a></li>
-          <li><a href="https://github.com/LoweNiyan">Github: NyaLowe</a></li>
-          <li>微信公众号</li>
-        </ul>
-      </main>
+      <div class="connect-page">
+        <!-- 背景色块 -->
+        <div class="connect-bg"></div>
+
+        <main class="connect-main">
+          <!-- 顶部信息 -->
+          <div class="connect-meta">
+            <span>nyan.work</span>
+            <span>/// CONNECT</span>
+          </div>
+
+          <!-- 巨型标题 -->
+          <div class="connect-hero">
+            <h1 class="connect-title">CONNECT</h1>
+            <span class="connect-title-stroke" aria-hidden="true">CONNECT</span>
+            <p class="connect-subtitle">建立连接 // EST. 2024</p>
+          </div>
+
+          <!-- 内容网格 -->
+          <div class="connect-grid">
+            <!-- Bilibili -->
+            <div class="connect-cell">
+              <span class="cell-number">01</span>
+              <h2 class="cell-title">BILIBILI</h2>
+              <div class="cell-content">
+                <a href="https://space.bilibili.com/229582128" target="_blank" rel="noopener noreferrer">
+                  洛濔
+                </a>
+                <p style="margin-top: 1em; color: var(--c-mute);">视频内容 / 动态更新</p>
+              </div>
+            </div>
+
+            <!-- Github -->
+            <div class="connect-cell">
+              <span class="cell-number">02</span>
+              <h2 class="cell-title">GITHUB</h2>
+              <div class="cell-content">
+                <a href="https://github.com/LoweNiyan" target="_blank" rel="noopener noreferrer">
+                  NyaLowe
+                </a>
+                <p style="margin-top: 1em; color: var(--c-mute);">代码仓库 / 开源项目</p>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="connect-cell">
+              <span class="cell-number">03</span>
+              <h2 class="cell-title">EMAIL</h2>
+              <div class="cell-content">
+                <a href="mailto:Nyaqwertyuiop@outlook.com">
+                  Nyaqwertyuiop@outlook.com
+                </a>
+                <button class="copy-btn" data-copy="Nyaqwertyuiop@outlook.com" type="button">
+                  <span class="copy-text">COPY</span>
+                </button>
+                <p style="margin-top: 1em; color: var(--c-mute);">点击发送 / 或复制地址</p>
+              </div>
+            </div>
+
+            <!-- WeChat -->
+            <div class="connect-cell qr-cell">
+              <div class="qr-image">
+                <Image src={weixinQR} alt="微信公众号二维码" width={160} height={160} />
+              </div>
+              <div class="qr-label">
+                <strong>WECHAT</strong>
+                微信公众号<br>
+                扫码关注
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部 -->
+          <div class="connect-footer">
+            <div class="footer-left">
+              SIGNAL ACTIVE<br>
+              WAITING FOR CONNECTION
+            </div>
+            <div class="footer-right" aria-hidden="true">///</div>
+          </div>
+        </main>
+      </div>
     </MiniNav>
+
+    <script>
+      // 复制到剪贴板
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const text = btn.dataset.copy;
+          if (!text) return;
+
+          navigator.clipboard.writeText(text).then(() => {
+            const textSpan = btn.querySelector('.copy-text');
+            if (textSpan) textSpan.textContent = 'COPIED';
+            btn.classList.add('copied');
+
+            setTimeout(() => {
+              if (textSpan) textSpan.textContent = 'COPY';
+              btn.classList.remove('copied');
+            }, 2000);
+          }).catch(() => {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+          });
+        });
+      });
+    </script>
   </body>
 </html>
