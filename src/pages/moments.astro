@@ -1,0 +1,130 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+import { notes } from '../content/notes';
+import { resolveImage, resolveImageMeta } from '../utils/images';
+import NoteCard from '../components/NoteCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import MomentModal from '../components/MomentModal.astro';
+import '../style/moments.css';
+
+const posts = await getCollection('blog');
+
+// ── 处理笔记数据 ──
+const notesData = notes.map((note, i) => ({
+  ...note,
+  id: `note-${i}`,
+  image: resolveImage(note.image),
+  imageMeta: resolveImageMeta(note.image),
+}));
+
+// ── 处理文章数据 ──
+const articleData = posts.map((post, i) => {
+  const bodyText = (post.body || '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_~`]/g, '')
+    .trim();
+
+  return {
+    type: 'article',
+    id: `article-${i}`,
+    title: post.data.title,
+    summary: post.data.summary,
+    content: bodyText.slice(0, 300),
+    date: post.data.pubDate.toISOString().split('T')[0],
+    time: post.data.time || '',
+    image: post.data.image ? post.data.image.src : '',
+    imageMeta: post.data.image,
+    url: `/blog/${post.id}`,
+    author: post.data.author,
+    tags: post.data.tags,
+  };
+});
+
+// ── 合并并按日期排序（最新在前）──
+const allLogs = [...articleData, ...notesData].sort((a, b) => {
+  const da = a.date + ' ' + (a.time || '00:00');
+  const db = b.date + ' ' + (b.time || '00:00');
+  return db.localeCompare(da);
+});
+
+// ── 按日期分组 ──
+function formatDate(dateStr: string) {
+  const parts = dateStr.split('-');
+  return parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日';
+}
+
+interface LogEntry {
+  type: 'article' | 'note';
+  id: string;
+  date: string;
+  time: string;
+  [key: string]: unknown;
+}
+
+function groupByDate(logList: LogEntry[]) {
+  const groups = new Map<string, LogEntry[]>();
+  logList.forEach((log) => {
+    if (!groups.has(log.date)) groups.set(log.date, []);
+    groups.get(log.date)!.push(log);
+  });
+  return groups;
+}
+
+const groups = groupByDate(allLogs);
+const sortedDates = Array.from(groups.keys()).sort((a, b) => b.localeCompare(a));
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={"Moments - " + SITE_TITLE} description={SITE_DESCRIPTION} />
+    <script src="../js/moments.js"></script>
+  </head>
+  <body>
+    <!-- 注入扁平数据（已排序），供弹窗和索引使用 -->
+    <!-- 序列化时跳过不可 JSON 化的 imageMeta -->
+    <script id="moments-data" type="application/json" set:html={JSON.stringify(allLogs, (key, value) => key === 'imageMeta' ? undefined : value)}></script>
+
+    <div class="viewport-container" id="viewport_container">
+      <div class="log-viewport">
+        <a id="index_btn" class="index-btn">index</a>
+        <div id="log_container" class="log-track">
+          {(() => {
+            let idx = 0;
+            return sortedDates.map((date) => (
+              <>
+                <div class="date-marker"><span>{formatDate(date)}</span></div>
+                {groups.get(date)!.map((entry) => {
+                  const cardIdx = idx++;
+                  return entry.type === 'article'
+                    ? <ArticleCard entry={entry} index={cardIdx} />
+                    : <NoteCard entry={entry} index={cardIdx} />;
+                })}
+              </>
+            ));
+          })()}
+        </div>
+
+        <!-- 索引弹窗 -->
+        <div id="index_overlay" class="index-overlay">
+          <div class="index-page">
+            <h1 class="index-title">索引</h1>
+            <div class="index-content">
+              <div id="index_list" class="index-list"></div>
+              <div class="index-blank"></div>
+            </div>
+            <div class="index-mask"></div>
+          </div>
+        </div>
+
+        <div class="kb-hint"><kbd>←</kbd><kbd>→</kbd> 切换 &nbsp; <kbd>i</kbd> 索引 &nbsp; <kbd>Esc</kbd> 关闭</div>
+      </div>
+
+      <MomentModal />
+    </div>
+  </body>
+</html>

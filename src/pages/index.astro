@@ -1,0 +1,51 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import '../style/index.css';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={"Main Page - " + SITE_TITLE} description={SITE_DESCRIPTION} />
+		<script src="../js/index.js"></script>
+	</head>
+	<body>
+		<main id="main">
+        	<div class="hello">
+        	    <ul>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	        <li><span>Hello World</span><span>Hello World</span><span>Hello World</span></li>
+        	    </ul>
+        	</div>
+		
+        	<a id="more_btn" class="more_btn">more↗</a>
+        	<div id="more_container" class="more_container">
+        	    <div class="more_page">
+        	        <h1>More...</h1>
+        	        <div id="more_info"> <h3>nyan.work</h3> <p id="more_info_content"></p> </div>
+        	        <ul class="more_menu">
+  	        <li><a href="/about">关于</a></li>
+  	            <li><a href="/moments">动态</a></li>
+  	            <li><a href="/connect">联系</a></li>
+        	        </ul>
+        	    </div>
+        	</div>
+    	</main>
+	</body>
+</html>

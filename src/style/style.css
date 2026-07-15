@@ -1,0 +1,225 @@
+:root {
+    --serif-font: serif;
+    --mono-font: var(--font-mono), monospace;
+}
+
+/* 文本样式 */
+em {
+    font-style: italic;
+}
+
+strong {
+    font-weight: 900;
+}
+
+del {
+    text-decoration: line-through white;
+    color: #999;
+}
+
+mark {
+    color: white;
+    background-color: #00000000;
+    background-image: linear-gradient(rgba(238, 255, 84, 0) 40%, rgba(255, 251, 34, 0.5) 40%);
+
+}
+
+i {
+    font-style: italic;
+}
+
+samp {
+    margin-right: 0.5em;
+    margin-left: 0.5em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    border-radius: 5px;
+    background-color: #333;
+    font-family: var(--mono-font);
+}
+
+code {
+    margin-right: 0.5em;
+    margin-left: 0.5em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    border-radius: 5px;
+    background-color: #333;
+    font-family: var(--mono-font);
+}
+
+kbd {
+    display: inline-block;
+    margin-right: 0.3em;
+    margin-left: 0.3em;
+    padding-right: 0.3em;
+    padding-left: 0.3em;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    background-color: #333;
+    color: #fff;
+    text-shadow: #fff 0 0 1px;
+    box-shadow: 0 2px 0 0 #fff,0 3px 0 1px #000;
+    font-family: var(--mono-font);
+    font-size: 90%;
+    line-height: 110%;
+    transform: translateY(-2px);
+}
+
+time {
+    font-family: var(--mono-font);
+}
+
+var {
+    font-style: italic;
+    font-family: var(--serif-font);
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+a:hover {
+    color: #ff284f;
+    transition: all 0.2s;
+}
+
+hr {
+    margin-top: 12px;
+    margin-bottom: 24px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5em 0;
+  font-size: 0.95em;
+  color: #ccc;
+  background: #000;
+  overflow: scroll;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* 表头样式 */
+thead th {
+  background: #000;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.8em 1em;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+
+/* 普通单元格 */
+th, td {
+  padding: 0.8em 1em;
+  border-bottom: 1px solid #666;
+  border-right: 1px solid #666;
+  vertical-align: top;
+}
+
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+
+/* 斑马纹 */
+tbody tr:nth-child(even) {
+  background: #000;
+}
+
+/* 行悬停效果 */
+tbody tr:hover {
+  background: #111;
+  transition: background 0.2s ease;
+}
+
+/* 表格脚注 */
+tfoot td {
+  background: #000;
+  font-weight: 600;
+  border-top: 2px solid #ccc;
+}
+
+/* 表格标题 */
+caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: 0.6em 0.2em 0;
+  font-size: 0.9em;
+  color: #718096;
+  font-style: italic;
+}
+
+blockquote {
+  margin: 1.5em 0;
+  padding: 1em 1.2em 1em 3em;
+  border-left: 8px solid #ccc;
+  background: linear-gradient(#2222, #222);;
+  color: #888;
+  line-height: 1.7;
+  border-radius: 0 16px 16px 0;
+  position: relative;
+}
+
+blockquote::before {
+  content: "“";
+  position: absolute;
+  left: 16px;
+  top: 24px;
+  font-size: 2.5em;
+  color: #ff284f;
+  font-style: normal;
+  line-height: 1;
+  font-family: var(--font-pixel-dos);
+}
+
+blockquote blockquote {
+    outline: 1px solid #fff4;
+  border-left: 4px solid #cccf;
+  background: #000;;
+  color: #666;
+}
+
+::selection {
+    background-color: #ff284f;
+    color: #fff;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #444;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #222;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: #222;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+spoiler-text {
+    background-color: #fff;
+    color: #fff;
+    transition: .2s;
+}
+spoiler-text:hover {
+    background-color: #fff3;
+}

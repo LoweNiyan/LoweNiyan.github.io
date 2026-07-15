@@ -1,0 +1,216 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import { Image } from 'astro:assets';
+
+type Props = CollectionEntry<'blog'>['data'] & {
+    slug?: string;
+};
+
+const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astro.props;
+---
+
+<html lang="zh-CN">
+    <head>
+        <BaseHead title={`${title} - nyan.work`} description={summary} image={image} />
+        <style>
+            :root {
+                --sans-font: var(--font-rubik), var(--font-opposans), sans-serif;
+                --pixel-font: var(--font-pixel-dos), var(--font-pixel-7), monospace;
+                --serif-font: serif;
+            }
+            body {
+                background: #000;
+                font-family: var(--serif-font);
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding: 0;
+                display: block;
+                height: auto;
+            }
+            .blog-page {
+                max-width: 720px;
+                margin: 0 auto;
+                padding: 60px 32px 100px;
+            }
+            .blog-cover {
+                width: 100%;
+                max-height: 360px;
+                object-fit: cover;
+                border-radius: 4px;
+                margin-bottom: 32px;
+            }
+            .blog-title {
+                font-family: var(--pixel-font);
+                font-size: 36px;
+                color: #ddd;
+                margin-bottom: 8px;
+                line-height: 1.3;
+            }
+            .blog-author {
+                font-size: 14px;
+                color: #555;
+                margin-bottom: 12px;
+            }
+            .blog-meta {
+                font-size: 13px;
+                color: #555;
+                font-style: italic;
+                margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #1a1a1a;
+            }
+            .blog-body {
+                font-size: 17px;
+                color: #aaa;
+                line-height: 2;
+                margin-bottom: 50px;
+            }
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .blog-back {
+                position: fixed;
+                bottom: 32px;
+                left: 32px;
+                padding: 12px 20px 13px 15px;
+                line-height: 32px;
+                font-size: 32px;
+                font-family: var(--sans-font);
+                color: #FFFFFF80;
+                text-decoration: none;
+                box-shadow:
+                    0 0 0 1px #ffffff80,
+                    0 0 5px  #ffffff60,
+                    0 0 10px #ffffff40,
+                    0 0 50px #ffffff37;
+                border: 1px solid #000;
+                z-index: 999;
+                backdrop-filter: blur(2px);
+                animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
+            }
+            .blog-back:hover {
+                border-radius: 28px;
+                color: #000;
+                box-shadow:
+                    0 0 0 1px #fff,
+                    0 0 5px  #ffffffcc,
+                    0 0 10px #ffffff80,
+                    0 0 50px #ffffff37;
+                background: #fff;
+                opacity: 1;
+            }
+            .blog-tags {
+                display: block;
+                margin-bottom: 8px;
+            }
+            .blog-tag {
+                display: inline-block;
+                font-size: 12px;
+                color: #888;
+                border: 1px solid #333;
+                border-radius: 3px;
+                padding: 0 8px;
+                margin-right: 6px;
+                font-style: normal;
+                font-family: var(--mono-font);
+            }
+
+            .blog-body {
+                & a {
+                    padding: 0 5px;
+                    border-radius: 5px;
+                    background-color: #d5214280;
+                    color: #ffb3c1;
+                    font-family: var(--sans-font);
+                    font-weight: bold;
+                    transition: .2s;
+                }
+                & a:hover {
+                    text-decoration: underline;
+                    color: #fff;
+                    background-color: #ff5f7c80;
+                }
+
+                & ul, 
+                & ol {
+                  padding-left: 2em;
+                  margin: 1em 0;
+                }
+                & ul {
+                    list-style-type: disc !important;
+                }
+                & ol {
+                    list-style-type: decimal !important;
+                }
+                & li {
+                  display: list-item;
+                  list-style: inherit !important;
+                }
+
+                & pre code {
+                  background-color: transparent;
+                  padding: 0;
+                  margin: 0;
+                }
+                & pre {
+                    padding: 10px 20px;
+                    border-radius: 16px;
+                }
+
+                & del {
+                    text-decoration: line-through #ccc;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="blog-page">
+            {image && <img class="blog-cover" src={image.src} alt="" />}
+            <h1 class="blog-title">{title}</h1>
+            {author && <div class="blog-author">{author}</div>}
+            <div class="blog-meta">
+                {
+                    tags && tags.length > 0 && (
+                        <span class="blog-tags">
+                            {tags.map((tag) => <span class="blog-tag">{tag}</span>)}
+                            <br/>
+                        </span>
+                    )
+                }
+                {pubDate.getMonth() + 1}月{pubDate.getDate()}日
+                {time && `  ${time}`}
+            </div>
+            <main class="blog-body">
+                <slot />
+            </main>
+
+            <!-- giscus 评论 -->
+            <script
+                src="https://giscus.app/client.js"
+                data-repo="LoweNiyan/LoweNiyan.github.io"
+                data-repo-id="R_kgDOPDqmjA"
+                data-category="Pages Comments"
+                data-category-id="DIC_kwDOPDqmjM4DBFZ4"
+                data-mapping="title"
+                data-strict="1"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="top"
+                data-theme="fro"
+                data-lang="zh-CN"
+                crossorigin="anonymous"
+                async>
+            </script>
+        </div>
+
+        <a href="/moments" class="blog-back">↖back</a>
+    </body>
+</html>
