@@ -113,6 +113,37 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
         z-index: 10000;
         pointer-events: none;
       }
+
+      .glitch-buttons {
+        margin-top: 40px;
+        display: flex;
+        gap: 24px;
+        z-index: 1;
+      }
+
+      .glitch-buttons a {
+        display: inline-block;
+        padding: 5px 28px;
+        padding-top: 8px;
+        font-family: var(--font-pixel-dos), var(--font-pixel-7);
+        font-size: 18px;
+        color: #fff;
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.6);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      .glitch-buttons a:hover {
+        background: rgba(255,255,255,0.12);
+        border-color: #fff;
+        box-shadow:
+          0 0 0 1px #fff,
+          0 0 5px  #ffffffcc,
+          0 0 10px #ffffff80,
+          0 0 50px #ffffff9a;
+      }
     </style>
   </head>
   <body>
@@ -121,6 +152,10 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
     <div id="glitch-wrapper">
       <main>
         <h1 data-text="404 - Not Found.">404 - Not Found.</h1>
+        <div class="glitch-buttons">
+          <a href="/">主页</a>
+          <a href="#" onclick="history.back();return false;">返回</a>
+        </div>
       </main>
     </div>
 
