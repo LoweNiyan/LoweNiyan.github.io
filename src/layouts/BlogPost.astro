@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
+import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'] & {
     slug?: string;
@@ -65,29 +66,44 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
                 line-height: 2;
                 margin-bottom: 50px;
             }
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
             .blog-back {
                 position: fixed;
                 bottom: 32px;
                 left: 32px;
-                padding: 12px 15px 13px 20px;
+                padding: 12px 20px 13px 15px;
                 line-height: 32px;
                 font-size: 32px;
                 font-family: var(--sans-font);
-                color: #fff;
+                color: #FFFFFF80;
                 text-decoration: none;
+                box-shadow:
+                    0 0 0 1px #ffffff80,
+                    0 0 5px  #ffffff60,
+                    0 0 10px #ffffff40,
+                    0 0 50px #ffffff37;
+                border: 1px solid #000;
+                z-index: 999;
+                backdrop-filter: blur(2px);
+                animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
+            }
+            .blog-back:hover {
+                border-radius: 28px;
+                color: #000;
                 box-shadow:
                     0 0 0 1px #fff,
                     0 0 5px  #ffffffcc,
                     0 0 10px #ffffff80,
                     0 0 50px #ffffff37;
-                border: 1px solid #000;
-                z-index: 999;
-                backdrop-filter: blur(2px);
-                opacity: 0.5;
-            }
-            .blog-back:hover {
-                border-radius: 28px;
-                color: #000;
                 background: #fff;
                 opacity: 1;
             }
@@ -105,6 +121,53 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
                 margin-right: 6px;
                 font-style: normal;
                 font-family: var(--mono-font);
+            }
+
+            .blog-body {
+                & a {
+                    padding: 0 5px;
+                    border-radius: 5px;
+                    background-color: #d5214280;
+                    color: #ffb3c1;
+                    font-family: var(--sans-font);
+                    font-weight: bold;
+                    transition: .2s;
+                }
+                & a:hover {
+                    text-decoration: underline;
+                    color: #fff;
+                    background-color: #ff5f7c80;
+                }
+
+                & ul, 
+                & ol {
+                  padding-left: 2em;
+                  margin: 1em 0;
+                }
+                & ul {
+                    list-style-type: disc !important;
+                }
+                & ol {
+                    list-style-type: decimal !important;
+                }
+                & li {
+                  display: list-item;
+                  list-style: inherit !important;
+                }
+
+                & pre code {
+                  background-color: transparent;
+                  padding: 0;
+                  margin: 0;
+                }
+                & pre {
+                    padding: 10px 20px;
+                    border-radius: 16px;
+                }
+
+                & del {
+                    text-decoration: line-through #ccc;
+                }
             }
         </style>
     </head>
@@ -125,9 +188,9 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
                 {pubDate.getMonth() + 1}月{pubDate.getDate()}日
                 {time && `  ${time}`}
             </div>
-            <div class="blog-body">
+            <main class="blog-body">
                 <slot />
-            </div>
+            </main>
 
             <!-- giscus 评论 -->
             <script

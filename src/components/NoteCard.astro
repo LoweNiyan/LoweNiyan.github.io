@@ -1,0 +1,71 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export interface Props {
+  entry: {
+    type: 'note';
+    id: string;
+    date: string;
+    time: string;
+    content: string;
+    image?: string;
+    imageMeta?: ImageMetadata;
+  };
+  index?: number;
+}
+
+const { entry, index = 0 } = Astro.props;
+const loading = index < 4 ? 'eager' : 'lazy';
+---
+
+<div class="log-card-note" data-entry-id={entry.id}>
+  {entry.imageMeta && <Image src={entry.imageMeta} alt="" class="note-img" loading={loading} />}
+  <time>{entry.time}</time>
+  <p>{entry.content}</p>
+</div>
+
+<style is:global>
+.log-card-note {
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    width: 340px;
+    min-height: 180px;
+    padding: 24px 28px;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.log-card-note:hover {
+    border-color: #ffffff55;
+    box-shadow:
+        0 0 30px  #ffffff66,
+        0 0 80px  #ffffff33,
+        0 0 180px #ffffff14;
+}
+.note-img {
+    width: calc(100% + 56px);
+    height: 180px;
+    object-fit: cover;
+    margin: -24px -28px 16px;
+    border-radius: 2px 2px 0 0;
+}
+.log-card-note time {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 14px;
+    display: block;
+}
+.log-card-note p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: #bbb;
+    word-break: break-word;
+}
+</style>

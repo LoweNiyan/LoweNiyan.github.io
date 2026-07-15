@@ -16,56 +16,6 @@ function groupByDate(logList) {
     return groups;
 }
 
-/** 创建 <img> 元素，统一处理 src/alt/class */
-function createImg(src, className) {
-    if (!src) return null;
-    return $('<img>').attr('src', src).attr('alt', '').addClass(className || '');
-}
-
-// ── 卡片渲染 ──
-function renderNoteCard(entry) {
-    var $img = createImg(entry.image, 'note-img');
-    var imgHtml = $img ? $img.prop('outerHTML') : '';
-    var card = $('<div class="log-card-note">' + imgHtml
-        + '<time>' + entry.time + '</time><p>' + entry.content + '</p></div>');
-    card.data('entry', entry);
-    return card;
-}
-
-function renderArticleCard(entry) {
-    var card = $('<div class="log-card-article">');
-    var imgWrap = $('<div class="card-img-wrap">');
-
-    if (entry.image) {
-        imgWrap.append(createImg(entry.image));
-    } else {
-        imgWrap.append($('<span class="card-img-placeholder">+</span>'));
-    }
-    card.append(imgWrap);
-
-    card.append($('<div class="card-title">').text(entry.title));
-
-    if (entry.tags && entry.tags.length) {
-        var tagsDiv = $('<div class="card-tags">');
-        entry.tags.forEach(function (t) {
-            tagsDiv.append($('<span class="card-tag">').text(t));
-        });
-        card.append(tagsDiv);
-    }
-
-    card.append($('<div class="card-summary">').text(entry.summary));
-
-    if (entry.author) {
-        card.append($('<div class="card-author">').text(entry.author));
-    }
-
-    card.append($('<div class="card-time">').text(entry.time));
-
-    card.data('article', entry);
-    card.data('entry', entry);
-    return card;
-}
-
 // ── 弹窗（兼容文章和笔记）──
 function openModal(entry) {
     if (entry.image) {
@@ -154,8 +104,8 @@ function closeIndexOverlay() {
     });
     $overlay.removeClass('active');
     $('#index_btn').css({
-        'box-shadow': '0 0 0 1px #fff, 0 0 5px #ffffffcc, 0 0 10px #ffffff80, 0 0 50px #ffffff37',
-        'color': 'inherit'
+        'box-shadow': '0 0 0 1px #ffffff80, 0 0 5px #ffffff60, 0 0 10px #ffffff40, 0 0 50px #ffffff37',
+        'color': '#ffffff80'
     }).text('index');
 }
 
@@ -179,17 +129,12 @@ function buildIndex(logs) {
                 + '<span class="index-item-time">' + entry.time + '</span>'
                 + '</div>');
 
-            $item.data('entry', entry);
+            $item.attr('data-entry-id', entry.id);
 
             $item.on('click', function () {
-                var targetEntry = $(this).data('entry');
-                var cards = document.querySelectorAll('.log-card-note, .log-card-article');
-                for (var i = 0; i < cards.length; i++) {
-                    if ($(cards[i]).data('entry') === targetEntry) {
-                        scrollToCard(cards[i]);
-                        break;
-                    }
-                }
+                var targetId = $(this).attr('data-entry-id');
+                var card = document.querySelector('[data-entry-id="' + targetId + '"]');
+                if (card) scrollToCard(card);
                 closeIndexOverlay();
             });
 
@@ -200,19 +145,22 @@ function buildIndex(logs) {
 
 // ── 页面入口 ──
 $(document).ready(function () {
-    // 从注入的 JSON 读取数据
+    // 从注入的 JSON 读取数据（扁平数组，已排序）
     var dataEl = document.getElementById('moments-data');
     if (!dataEl) {
         console.error('moments-data not found');
         return;
     }
-    var allData;
+    var allLogs;
     try {
-        allData = JSON.parse(dataEl.textContent);
+        allLogs = JSON.parse(dataEl.textContent);
     } catch (e) {
         console.error('Failed to parse moments-data', e);
         return;
     }
+
+    // 建立 ID → entry 映射，供卡片点击查找
+    var entryMap = new Map(allLogs.map(function (e) { return [e.id, e]; }));
 
     var hintTimer;
     var $hint = $('.kb-hint');
@@ -231,39 +179,11 @@ $(document).ready(function () {
         $('#index_overlay').css('clip-path', 'circle(0% at ' + center.x + 'px ' + center.y + 'px)');
     })();
 
-    // 合并文章和笔记
-    var articleData = allData.articles || [];
-    var notes = allData.notes || [];
-    var allLogs = articleData.concat(notes);
-    allLogs.sort(function (a, b) {
-        var da = a.date + ' ' + (a.time || '00:00');
-        var db = b.date + ' ' + (b.time || '00:00');
-        return db.localeCompare(da);
-    });
-
-    // 渲染卡片
-    var groups = groupByDate(allLogs);
-    var sortedDates = Array.from(groups.keys()).sort(function (a, b) { return b.localeCompare(a); });
-    var container = $('#log_container');
-
-    sortedDates.forEach(function (date) {
-        container.append('<div class="date-marker"><span>' + formatDate(date) + '</span></div>');
-
-        groups.get(date).forEach(function (entry) {
-            if (entry.type === 'article') {
-                container.append(renderArticleCard(entry));
-            } else {
-                container.append(renderNoteCard(entry));
-            }
-        });
-    });
-
     // 构建索引
     buildIndex(allLogs);
 
     // 如果 URL hash 是 #index，自动打开索引
     if (window.location.hash === '#index') {
-        // 需要等索引弹窗的 clip-path 初始化完成
         setTimeout(function () {
             openIndexOverlay();
         }, 100);
@@ -281,16 +201,10 @@ $(document).ready(function () {
 
     // ── 事件绑定 ──
 
-    // 文章卡片点击
-    $('#log_container').on('click', '.log-card-article', function () {
-        var article = $(this).data('article');
-        if (article) openModal(article);
-    });
-
-    // 笔记卡片点击
-    $('#log_container').on('click', '.log-card-note', function () {
-        var note = $(this).data('entry');
-        if (note) openModal(note);
+    // 卡片点击（统一处理文章和笔记）
+    $('#log_container').on('click', '.log-card-article, .log-card-note', function () {
+        var entry = entryMap.get($(this).attr('data-entry-id'));
+        if (entry) openModal(entry);
     });
 
     // 弹窗关闭

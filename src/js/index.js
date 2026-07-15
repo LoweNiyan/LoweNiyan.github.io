@@ -21,7 +21,7 @@ $(document).ready(function() {
     clearTimeout(closeTimer);
 
     if (moreContainer.hasClass('active')) {
-        $('a.more_btn').css('box-shadow','0 0 0 1px #fff, 0 0 5px  #ffffffcc, 0 0 10px #ffffff80, 0 0 50px #ffffff37');
+        $('a.more_btn').css('box-shadow','0 0 0 1px #ffffff80, 0 0 5px  #ffffff60, 0 0 10px #ffffff40, 0 0 50px #ffffff37');
         // === 关闭 ===
         // 暂停打字机但不清理文字（动画期间保留）
         if (printerHandle) printerHandle.stop();
@@ -32,7 +32,7 @@ $(document).ready(function() {
             'clip-path': `circle(0% at ${x}px ${y}px)`
         });
         btn.text('more↗');
-        btn.css({'width':'146px','color':'inherit'});
+        btn.css({'width':'146px','color':'#ffffff80'});
 
         // 动画结束后才彻底清理文字
         closeTimer = setTimeout(() => {

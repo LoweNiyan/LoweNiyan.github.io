@@ -1,0 +1,155 @@
+---
+// 弹窗壳 — 内容由 JS 在运行时按需填充
+---
+
+<div class="modal-viewport">
+  <div id="modal" class="modal-overlay">
+    <div class="modal-panel">
+      <button class="modal-close">&times;</button>
+      <h2 id="modal_title" class="modal-title"></h2>
+      <div class="modal-info">
+        <div id="modal_time" class="modal-time"></div>
+        <div id="modal_tags" class="modal-tags"></div>
+      </div>
+      <div class="modal-scroll">
+        <img id="modal_img" class="modal-img" src="" alt="" />
+        <div id="modal_body" class="modal-body"></div>
+      </div>
+      <a id="modal_link" class="modal-link" href="">阅读原文 →</a>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+.modal-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.modal-overlay.active {
+    transform: translateY(0);
+}
+.modal-panel {
+    max-width: 680px;
+    width: 90%;
+    max-height: 85vh;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 40px 40px 24px;
+}
+.modal-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 12px;
+}
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 18px;
+    font-size: 28px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 10;
+}
+.modal-close:hover {
+    color: #fff;
+}
+.modal-img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    display: none;
+}
+.modal-img.has-img {
+    display: block;
+}
+.modal-title {
+    font-size: 26px;
+    color: #eee;
+    font-family: var(--pixel-font);
+    margin: 0 0 8px;
+    flex-shrink: 0;
+}
+.modal-info {
+    display: flex;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #1f1f1f;
+    justify-content: space-between;
+}
+.modal-time {
+    font-size: 13px;
+    color: #666;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.modal-tags {
+    display: inline-flex;
+    flex-shrink: 0;
+    transform: translateX(6px);
+}
+.modal-tag {
+    display: inline-block;
+    font-size: 12px;
+    color: #888;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 0 8px;
+    margin-right: 6px;
+    font-family: var(--mono-font);
+}
+.modal-body {
+    font-size: 16px;
+    color: #aaa;
+    line-height: 1.9;
+}
+.modal-panel::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(255,40,79,0.55) 0%, rgba(255,40,79,0.25) 50%, rgba(255,40,79,0.06) 85%, transparent 100%);
+    pointer-events: none;
+    border-radius: 0 0 24px 24px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+.modal-panel.glow::after {
+    opacity: 1;
+}
+.modal-link {
+    display: block;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+    text-decoration: none;
+    padding: 14px 0 24px;
+    flex-shrink: 0;
+    transition: color 0.2s, text-shadow 0.3s;
+}
+.modal-link:hover {
+    color: #fff;
+    text-shadow: 0 0 16px #ff284f88, 0 0 40px #ff284f44;
+}
+</style>
