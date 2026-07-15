@@ -1,0 +1,48 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { Font } from 'astro:assets';
+
+const pageTitle = "友情链接 - " + SITE_TITLE;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={pageTitle} description={SITE_DESCRIPTION} />
+    <style>
+      body {
+        background: #000;
+        color: #ddd;
+        font-family: inherit;
+      }
+      main {
+        max-width: 680px;
+        margin: 4em auto;
+        padding: 0 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>友情链接</h1>
+      <p>这里还没写东西喵～</p>
+      <script src="https://giscus.app/client.js"
+        data-repo="LoweNiyan/LoweNiyan.github.io"
+        data-repo-id="R_kgDOPDqmjA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOPDqmjM4DBFVe"
+        data-mapping="specific"
+        data-term="交换友情链接"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="fro"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+      </script>
+    </main>
+  </body>
+</html>

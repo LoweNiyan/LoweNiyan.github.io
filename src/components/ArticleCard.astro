@@ -52,7 +52,7 @@ const loading = index < 4 ? 'eager' : 'lazy';
 .log-card-article {
     scroll-snap-align: center;
     flex-shrink: 0;
-    width: 480px;
+    width: min(480px, 78vw);
     min-height: 380px;
     padding: 24px;
     background: #0a0a0a;

@@ -253,3 +253,62 @@ a.more_btn:hover {
     border-radius: 0.5px;
     animation: 1s cubic-bezier(0.00, 1.00, 0.00, 1.00) 1.5s infinite cursorAnimation;
 }
+
+/* ── 矮屏适配（窄屏移动端 + 矮屏桌面端）── */
+@media (max-width: 768px), (max-height: 800px) {
+    .hello {
+        top: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hello ul li:not(:nth-child(5)) {
+        display: none;
+    }
+
+    .hello ul li:nth-child(5) {
+        right: auto !important;
+        display: block;
+        text-align: center;
+    }
+
+    .hello ul li:nth-child(5) span:nth-child(2) {
+        font-size: clamp(36px, 15vw, 15vh);
+        margin: 0;
+    }
+
+    .hello ul li:nth-child(5) span:not(:nth-child(2)) {
+        display: none;
+    }
+
+    a.more_btn {
+        bottom: 16px;
+        left: 16px;
+        font-size: 24px;
+        padding: 8px 12px;
+        line-height: 24px;
+    }
+
+    .more_container {
+        padding: 16px;
+    }
+
+    .more_page h1 {
+        font-size: 48px;
+    }
+
+    .more_menu li a {
+        font-size: 32px;
+        letter-spacing: -4px;
+        transform: scaleX(2);
+    }
+
+    #more_info {
+        right: 16px;
+        bottom: 16px;
+        width: calc(100vw - 100px);
+        font-size: 16px;
+    }
+}

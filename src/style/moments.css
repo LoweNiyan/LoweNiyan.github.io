@@ -295,3 +295,39 @@ a.index-btn:hover {
 .log-viewport::-webkit-scrollbar-track {
     background-color: #0a0a0a;
 }
+
+/* ── 移动端适配 ── */
+@media (max-width: 768px) {
+    .log-viewport {
+        padding: 16px;
+    }
+
+    a.index-btn {
+        bottom: 16px;
+        left: 16px;
+        font-size: 24px;
+        padding: 8px 16px;
+    }
+
+    .kb-hint {
+        bottom: 16px;
+        right: 16px;
+        font-size: 10px;
+    }
+
+    .index-overlay {
+        padding: 16px;
+    }
+
+    .index-title {
+        font-size: 48px;
+    }
+
+    .index-content {
+        height: calc(100vh - 160px);
+    }
+
+    .modal-panel {
+        padding: 32px 20px 24px;
+    }
+}

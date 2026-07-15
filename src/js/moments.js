@@ -30,7 +30,6 @@ function openModal(entry) {
         $('#modal_link').hide();
         $('#modal_tags').empty();
     } else {
-        // 文章
         $('#modal_title').text(entry.title);
         $('#modal_body').html((entry.content || entry.summary || '').replace(/\n/g, '<br>'));
         if (entry.url) {
@@ -38,7 +37,6 @@ function openModal(entry) {
         } else {
             $('#modal_link').hide();
         }
-        // 标签
         var tagsHtml = '';
         if (entry.tags && entry.tags.length) {
             tagsHtml = entry.tags.map(function (t) { return '<span class="modal-tag">' + t + '</span>'; }).join('');
@@ -59,7 +57,6 @@ function closeModal() {
     $('#viewport_container')[0].scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// ── 滚动到卡片 ──
 function scrollToCard(cardEl) {
     var vp = $('.log-viewport')[0];
     var rect = cardEl.getBoundingClientRect();
@@ -74,7 +71,6 @@ function scrollToCard(cardEl) {
     });
 }
 
-// ── 索引弹窗（clip-path circle 辐射动画）──
 function getIndexBtnCenter() {
     var btn = $('#index_btn')[0];
     var rect = btn.getBoundingClientRect();
@@ -143,8 +139,97 @@ function buildIndex(logs) {
     });
 }
 
-// ── 页面入口 ──
-$(document).ready(function () {
+// ── Module-scoped state ──
+let hintTimer;
+
+function hideHintTemporarily() {
+    $('.kb-hint').css('opacity', 0.2);
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(function () {
+        $('.kb-hint').css('opacity', 1);
+    }, 1000);
+}
+
+// ── One-time delegated event bindings (document persists across navigations) ──
+
+// 卡片点击（统一处理文章和笔记）
+$(document).on('click', '#log_container .log-card-article, #log_container .log-card-note', function () {
+    var entry = window.__entryMap.get($(this).attr('data-entry-id'));
+    if (entry) openModal(entry);
+});
+
+// 弹窗关闭
+$(document).on('click', '#modal', function (e) {
+    if (e.target === this) closeModal();
+});
+$(document).on('click', '.modal-close', closeModal);
+
+// 阅读原文 hover → 面板下半红光
+$(document).on('mouseenter', '#modal_link', function () {
+    $('.modal-panel').addClass('glow');
+}).on('mouseleave', '#modal_link', function () {
+    $('.modal-panel').removeClass('glow');
+});
+
+// 索引按钮
+$(document).on('click', '#index_btn', function () {
+    if ($('#index_overlay').hasClass('active')) {
+        closeIndexOverlay();
+    } else {
+        openIndexOverlay();
+    }
+});
+
+// 索引弹窗关闭
+$(document).on('click', '#index_overlay', function (e) {
+    if (e.target === this) closeIndexOverlay();
+});
+$(document).on('click', '.index-close', closeIndexOverlay);
+
+// 键盘快捷键
+$(document).on('keydown', function (e) {
+    if (e.key === 'Escape') {
+        if ($('#index_overlay').hasClass('active')) {
+            closeIndexOverlay();
+            return;
+        }
+        if ($('#modal').hasClass('active')) {
+            closeModal();
+            return;
+        }
+        return;
+    }
+
+    if ($('#modal').hasClass('active')) return;
+
+    if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) {
+        if ($('#index_overlay').hasClass('active')) {
+            closeIndexOverlay();
+        } else {
+            openIndexOverlay();
+        }
+        return;
+    }
+
+    if ($('#index_overlay').hasClass('active')) return;
+
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+
+        if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
+
+        var vp = $('.log-viewport')[0];
+        var delta = e.key === 'ArrowRight' ? (100 * SCROLL_SPEED) : -(100 * SCROLL_SPEED);
+        var maxScroll = vp.scrollWidth - vp.clientWidth;
+
+        vp.scrollLeft = Math.max(0, Math.min(vp.scrollLeft + delta, maxScroll));
+
+        hideHintTemporarily();
+    }
+});
+
+// ── Per-navigation DOM init ──
+document.addEventListener('astro:page-load', function () {
     // 从注入的 JSON 读取数据（扁平数组，已排序）
     var dataEl = document.getElementById('moments-data');
     if (!dataEl) {
@@ -160,18 +245,7 @@ $(document).ready(function () {
     }
 
     // 建立 ID → entry 映射，供卡片点击查找
-    var entryMap = new Map(allLogs.map(function (e) { return [e.id, e]; }));
-
-    var hintTimer;
-    var $hint = $('.kb-hint');
-
-    function hideHintTemporarily() {
-        $hint.css('opacity', 0.2);
-        clearTimeout(hintTimer);
-        hintTimer = setTimeout(function () {
-            $hint.css('opacity', 1);
-        }, 1000);
-    }
+    window.__entryMap = new Map(allLogs.map(function (e) { return [e.id, e]; }));
 
     // 初始化索引弹窗 clip-path
     (function () {
@@ -198,82 +272,4 @@ $(document).ready(function () {
             hideHintTemporarily();
         }
     }, { passive: false });
-
-    // ── 事件绑定 ──
-
-    // 卡片点击（统一处理文章和笔记）
-    $('#log_container').on('click', '.log-card-article, .log-card-note', function () {
-        var entry = entryMap.get($(this).attr('data-entry-id'));
-        if (entry) openModal(entry);
-    });
-
-    // 弹窗关闭
-    $('#modal').on('click', function (e) {
-        if (e.target === this) closeModal();
-    });
-    $('.modal-close').on('click', closeModal);
-
-    // 阅读原文 hover → 面板下半红光
-    $('#modal_link').on('mouseenter', function () {
-        $('.modal-panel').addClass('glow');
-    }).on('mouseleave', function () {
-        $('.modal-panel').removeClass('glow');
-    });
-
-    // 索引按钮
-    $('#index_btn').on('click', function () {
-        if ($('#index_overlay').hasClass('active')) {
-            closeIndexOverlay();
-        } else {
-            openIndexOverlay();
-        }
-    });
-
-    // 索引弹窗关闭
-    $('#index_overlay').on('click', function (e) {
-        if (e.target === this) closeIndexOverlay();
-    });
-    $('.index-close').on('click', closeIndexOverlay);
-
-    // 键盘快捷键
-    $(document).on('keydown', function (e) {
-        if (e.key === 'Escape') {
-            if ($('#index_overlay').hasClass('active')) {
-                closeIndexOverlay();
-                return;
-            }
-            if ($('#modal').hasClass('active')) {
-                closeModal();
-                return;
-            }
-            return;
-        }
-
-        if ($('#modal').hasClass('active')) return;
-
-        if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) {
-            if ($('#index_overlay').hasClass('active')) {
-                closeIndexOverlay();
-            } else {
-                openIndexOverlay();
-            }
-            return;
-        }
-
-        if ($('#index_overlay').hasClass('active')) return;
-
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            e.preventDefault();
-
-            if ($('#modal').hasClass('active') || $('#index_overlay').hasClass('active')) return;
-
-            var vp = $('.log-viewport')[0];
-            var delta = e.key === 'ArrowRight' ? (100 * SCROLL_SPEED) : -(100 * SCROLL_SPEED);
-            var maxScroll = vp.scrollWidth - vp.clientWidth;
-
-            vp.scrollLeft = Math.max(0, Math.min(vp.scrollLeft + delta, maxScroll));
-
-            hideHintTemporarily();
-        }
-    });
 });
