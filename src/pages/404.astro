@@ -8,48 +8,365 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
   <head>
     <BaseHead title={"NOT FOUND - " + SITE_TITLE} description={SITE_DESCRIPTION} />
     <style>
-      .content {
+      body {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        background: #000;
+      }
+
+      /* 加强暗角 */
+      body::before {
+        background: radial-gradient(
+          ellipse at center,
+          transparent 50%,
+          rgba(0, 0, 0, 0.7) 100%
+        ) !important;
+      }
+
+      #bg-glitch {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image: url('../assets/img/test_image.jpg');
+        background-size: cover;
+        background-position: center;
+        transform: translate(var(--bg-x), var(--bg-y)) scale(var(--bg-s, 1));
+        filter: brightness(var(--bg-b, 1)) contrast(var(--bg-c, 1));
+        transition: transform 0.04s, filter 0.04s;
+        pointer-events: none;
+      }
+
+      #glitch-wrapper {
+        height: 100%;
+        width: 100%;
+      }
+
+      #glitch-wrapper.glitch-filter-active {
+        filter: url(#glitch-filter);
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
         padding: 60px 20px;
-        font-family: "Good Old DOS", monospace;
+        font-family: var(--font-pixel-dos);
         font-size: 24px;
+      }
+
+      /* ── CSS Glitch 文字（JS 驱动随机值） ── */
+      h1 {
+        position: relative;
+        z-index: 0;
+        transform: translate(var(--sx), var(--sy));
+        text-shadow:
+          5px 5px #000,
+          var(--ts-f0f, -2px 0 #f0f),
+          var(--ts-0ff, 2px 0 #0ff);
+        transition: transform 0.04s, text-shadow 0.04s;
+      }
+
+      h1::before,
+      h1::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        transition: transform 0.04s, clip-path 0.04s;
+      }
+
+      h1::before {
+        color: #f0f;
+        z-index: -1;
+        transform: translate(var(--g1x), var(--g1y));
+        clip-path: inset(var(--g1t) 0 var(--g1b) 0);
+      }
+
+      h1::after {
+        color: #0ff;
+        z-index: -2;
+        transform: translate(var(--g2x), var(--g2y));
+        clip-path: inset(var(--g2t) 0 var(--g2b) 0);
+      }
+
+      #bg-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      #fx-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10000;
+        pointer-events: none;
       }
     </style>
   </head>
   <body>
-    <nav class="titlebar">
-      <div class="tab">
-        <span class="titletext">ERRRRRRROR!</span>
-        <span class="closeicon">&#xE106;</span>
-      </div>
-      <div class="titleicons">
-        <span class="titleicon icon1">&#xE921;</span>
-        <span class="titleicon icon1">&#xE923;</span>
-        <span class="titleicon icon2">&#xE8bb;</span>
-      </div>
-      <ul>
-        <li><a href="/"><h4>首页</h4></a></li>
-        <li><a href="/blog"><h4>BLOG</h4></a></li>
-      </ul>
-    </nav>
-
-    <nav class="bottombar">
-      <div class="right">
-        <span class="progress">0%</span>
-        <span class="back2top"><a href="#top" title="返回顶部">&#xE898</a></span>
-      </div>
-    </nav>
-
-    <div class="content">
-      404 - Not Found.
+    <div id="bg-glitch"></div>
+    <canvas id="bg-canvas"></canvas>
+    <div id="glitch-wrapper">
+      <main>
+        <h1 data-text="404 - Not Found.">404 - Not Found.</h1>
+      </main>
     </div>
 
-    <div class="content cmdbox invisib" id="cmdbox">
-      <form action="" autocomplete="off">
-        <label class="cmdlabel">
-          <input type="text" name="cmd" id="cmd" placeholder="> command">
-          <input class="submit" type="submit" value="&#xE9AC;">
-        </label>
-      </form>
-    </div>
+    <svg style="position:fixed;width:0;height:0;" aria-hidden="true">
+      <filter id="glitch-filter" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence id="turbulence" type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+
+    <canvas id="fx-canvas"></canvas>
+
+    <script>
+      // 共享切片数据
+      let slices = [];
+
+      // ── 背景 canvas（z-index: -1，位于文字下方）──
+      (function() {
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+
+        function resize() {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const bgImg = new Image();
+        bgImg.crossOrigin = 'anonymous';
+        bgImg.src = '/src/assets/img/test_image.jpg';
+
+        function drawSlice(sy, sh, offset) {
+          if (!bgImg.complete || bgImg.naturalWidth === 0) return;
+          const iw = bgImg.naturalWidth, ih = bgImg.naturalHeight;
+          const scale = Math.max(w / iw, h / ih);
+          const sw = w / scale, sImgH = h / scale;
+          const sx0 = (iw - sw) / 2, sy0 = (ih - sImgH) / 2;
+          ctx.drawImage(bgImg, sx0, sy0 + (sy / h) * sImgH, sw, (sh / h) * sImgH, offset, sy, w, sh);
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          if (slices.length > 0) {
+            for (const s of slices) drawSlice(s.sy, s.sh, s.offset);
+          } else {
+            drawSlice(0, h, 0);
+          }
+          requestAnimationFrame(draw);
+        }
+
+        if (bgImg.complete) draw();
+        else bgImg.onload = draw;
+      })();
+
+      // ── 特效 canvas（z-index: 10000，位于最上层）──
+      (function() {
+        const canvas = document.getElementById('fx-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+
+        function resize() {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let bars = [];
+        let snow = 0;
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+
+          // ── 雪花噪点 ──
+          snow = Math.max(0, snow - 0.004);
+          if (Math.random() < 0.008) snow = Math.min(1, snow + 0.2 + Math.random() * 0.4);
+          const dens = 1200 + snow * 6000;
+          for (let i = 0; i < dens; i++) {
+            const v = Math.random() * 255;
+            const a = snow > 0.1
+              ? 0.08 + Math.random() * 0.15 + snow * 0.2
+              : 0.03 + Math.random() * 0.06;
+            ctx.fillStyle = `rgba(${v},${v},${v},${a})`;
+            ctx.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2);
+          }
+
+          // 模拟故障彩条
+          if (Math.random() < 0.08) {
+            const count = 2 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < count; i++) {
+              const type = Math.random();
+              let r, g, b;
+              if (type < 0.5) {
+                r = 200 + Math.random() * 55; g = 200 + Math.random() * 55; b = 200 + Math.random() * 55;
+              } else if (type < 0.75) {
+                r = 150 + Math.random() * 105; g = 100 + Math.random() * 80; b = 100 + Math.random() * 80;
+              } else {
+                r = 100 + Math.random() * 80; g = 100 + Math.random() * 80; b = 150 + Math.random() * 105;
+              }
+              bars.push({
+                y: Math.random() * h,
+                height: 1 + Math.random() * 6,
+                w: (0.3 + Math.random() * 0.7) * w,
+                x: Math.random() * w * 0.3,
+                r, g, b,
+                alpha: 0.06 + Math.random() * 0.12,
+                life: 1,
+                offset: (Math.random() - 0.5) * 40
+              });
+            }
+          }
+
+          bars = bars.filter(bar => {
+            bar.life -= 0.04;
+            if (bar.life <= 0) return false;
+            ctx.fillStyle = `rgba(${bar.r},${bar.g},${bar.b},${bar.alpha * bar.life})`;
+            ctx.fillRect(bar.x, bar.y, bar.w, bar.height);
+            ctx.fillRect(bar.x + bar.offset, bar.y, bar.w, bar.height);
+            return true;
+          });
+
+          // 数字故障已移除
+
+          // ── 切片撕裂效果 ──
+          if (Math.random() < 0.02) {
+            const sl = 3 + Math.floor(Math.random() * 5);
+            const sh = h / sl;
+            for (let i = 0; i < sl; i++) {
+              slices.push({
+                sy: sh * i, sh: sh,
+                offset: (Math.random() - 0.5) * 80,
+                alpha: 0.2 + Math.random() * 0.3,
+                life: 1
+              });
+            }
+          }
+
+          slices = slices.filter(s => {
+            s.life -= 0.008;
+            if (s.life <= 0) return false;
+            const a = s.alpha * s.life;
+            ctx.fillStyle = `rgba(255,255,255,${a * 0.6})`;
+            ctx.fillRect(0, s.sy, w, 1);
+            ctx.fillStyle = `rgba(255,255,255,${a * 0.15})`;
+            ctx.fillRect(s.offset, s.sy + 1, w, s.sh - 2);
+            for (let j = 0; j < 6; j++) {
+              const v = 180 + Math.random() * 75;
+              ctx.fillStyle = `rgba(${v},${v},${v},${0.04 * s.life})`;
+              ctx.fillRect(s.offset + Math.random() * w, s.sy + Math.random() * s.sh, 8 + Math.random() * 24, 1 + Math.random() * 4);
+            }
+            return true;
+          });
+
+          if (Math.random() < 0.001) {
+            ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.random() * 0.12})`;
+            ctx.fillRect(0, 0, w, h);
+          }
+
+          requestAnimationFrame(draw);
+        }
+
+        draw();
+      })();
+
+      (function() {
+        const wrapper = document.getElementById('glitch-wrapper');
+
+        function trigger() {
+          wrapper.classList.add('glitch-filter-active');
+          setTimeout(() => {
+            wrapper.classList.remove('glitch-filter-active');
+          }, 1 + Math.random() * 100);
+        }
+
+        function schedule() {
+          const delay = 2000 + Math.random() * 6000;
+          setTimeout(() => {
+            trigger();
+            schedule();
+          }, delay);
+        }
+
+        schedule();
+      })();
+
+      (function() {
+        const h1 = document.querySelector('h1');
+        const r = () => Math.random();
+
+        function randOffset(base) {
+          return (r() - 0.5) * base;
+        }
+
+        function glitchTick() {
+          const intense = r() < 0.3 ? 0.5 + r() * 0.5 : 0.15 + r() * 0.35;
+          const i = intense;
+
+          h1.style.setProperty('--sx', randOffset(2 * i) + 'px');
+          h1.style.setProperty('--sy', randOffset(1.5 * i) + 'px');
+
+          const tsr = randOffset(8 * i);
+          const tsb = randOffset(8 * i);
+          h1.style.setProperty('--ts-f0f', `${tsr}px 0 #f0f`);
+          h1.style.setProperty('--ts-0ff', `${tsb}px 0 #0ff`);
+
+          h1.style.setProperty('--g1x', randOffset(18 * i) + 'px');
+          h1.style.setProperty('--g1y', randOffset(3 * i) + 'px');
+          const g1t = r() * 25 * i;
+          const g1b = (r() * 25 + 10) * i;
+          h1.style.setProperty('--g1t', g1t + '%');
+          h1.style.setProperty('--g1b', g1b + '%');
+
+          h1.style.setProperty('--g2x', randOffset(18 * i) + 'px');
+          h1.style.setProperty('--g2y', randOffset(3 * i) + 'px');
+          const g2t = (r() * 25 + 10) * i;
+          const g2b = r() * 25 * i;
+          h1.style.setProperty('--g2t', g2t + '%');
+          h1.style.setProperty('--g2b', g2b + '%');
+
+          const delay = 15 + r() * 40 * (1 - i * 0.6);
+          setTimeout(glitchTick, delay);
+        }
+
+        glitchTick();
+      })();
+
+      (function() {
+        const bg = document.getElementById('bg-glitch');
+        const r = () => Math.random();
+
+        function bgTick() {
+          const i = r() < 0.25 ? 0.5 + r() * 0.5 : 0.15 + r() * 0.35;
+
+          bg.style.setProperty('--bg-x', ((r() - 0.5) * 5 * i) + 'px');
+          bg.style.setProperty('--bg-y', ((r() - 0.5) * 3 * i) + 'px');
+          bg.style.setProperty('--bg-s', (1 + r() * 0.03 * i) + '');
+          bg.style.setProperty('--bg-b', (0.9 + r() * 0.15 * i) + '');
+          bg.style.setProperty('--bg-c', (0.95 + r() * 0.3 * i) + '');
+
+          setTimeout(bgTick, 20 + r() * 50 * (1 - i * 0.4));
+        }
+
+        bgTick();
+      })();
+    </script>
   </body>
 </html>
