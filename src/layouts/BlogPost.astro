@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
+import MiniNav from '../components/MiniNav.astro';
 import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'] & {
@@ -65,47 +66,6 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
                 color: #aaa;
                 line-height: 2;
                 margin-bottom: 50px;
-            }
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            .blog-back {
-                position: fixed;
-                bottom: 32px;
-                left: 32px;
-                padding: 12px 20px 13px 15px;
-                line-height: 32px;
-                font-size: 32px;
-                font-family: var(--sans-font);
-                color: #FFFFFF80;
-                text-decoration: none;
-                box-shadow:
-                    0 0 0 1px #ffffff80,
-                    0 0 5px  #ffffff60,
-                    0 0 10px #ffffff40,
-                    0 0 50px #ffffff37;
-                border: 1px solid #000;
-                z-index: 999;
-                backdrop-filter: blur(2px);
-                animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
-            }
-            .blog-back:hover {
-                border-radius: 28px;
-                color: #000;
-                box-shadow:
-                    0 0 0 1px #fff,
-                    0 0 5px  #ffffffcc,
-                    0 0 10px #ffffff80,
-                    0 0 50px #ffffff37;
-                background: #fff;
-                opacity: 1;
             }
             .blog-tags {
                 display: block;
@@ -172,45 +132,45 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
         </style>
     </head>
     <body>
-        <div class="blog-page">
-            {image && <img class="blog-cover" src={image.src} alt="" />}
-            <h1 class="blog-title">{title}</h1>
-            {author && <div class="blog-author">{author}</div>}
-            <div class="blog-meta">
-                {
-                    tags && tags.length > 0 && (
-                        <span class="blog-tags">
-                            {tags.map((tag) => <span class="blog-tag">{tag}</span>)}
-                            <br/>
-                        </span>
-                    )
-                }
-                {pubDate.getMonth() + 1}月{pubDate.getDate()}日
-                {time && `  ${time}`}
+        <MiniNav currentTitle={title}>
+            <div class="blog-page">
+                {image && <img class="blog-cover" src={image.src} alt="" />}
+                <h1 class="blog-title">{title}</h1>
+                {author && <div class="blog-author">{author}</div>}
+                <div class="blog-meta">
+                    {
+                        tags && tags.length > 0 && (
+                            <span class="blog-tags">
+                                {tags.map((tag) => <span class="blog-tag">{tag}</span>)}
+                                <br/>
+                            </span>
+                        )
+                    }
+                    {pubDate.getMonth() + 1}月{pubDate.getDate()}日
+                    {time && `  ${time}`}
+                </div>
+                <main class="blog-body">
+                    <slot />
+                </main>
+
+                <!-- giscus 评论 -->
+                <script
+                    src="https://giscus.app/client.js"
+                    data-repo="LoweNiyan/LoweNiyan.github.io"
+                    data-repo-id="R_kgDOPDqmjA"
+                    data-category="Pages Comments"
+                    data-category-id="DIC_kwDOPDqmjM4DBFZ4"
+                    data-mapping="title"
+                    data-strict="1"
+                    data-reactions-enabled="1"
+                    data-emit-metadata="0"
+                    data-input-position="top"
+                    data-theme="fro"
+                    data-lang="zh-CN"
+                    crossorigin="anonymous"
+                    async>
+                </script>
             </div>
-            <main class="blog-body">
-                <slot />
-            </main>
-
-            <!-- giscus 评论 -->
-            <script
-                src="https://giscus.app/client.js"
-                data-repo="LoweNiyan/LoweNiyan.github.io"
-                data-repo-id="R_kgDOPDqmjA"
-                data-category="Pages Comments"
-                data-category-id="DIC_kwDOPDqmjM4DBFZ4"
-                data-mapping="title"
-                data-strict="1"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="top"
-                data-theme="fro"
-                data-lang="zh-CN"
-                crossorigin="anonymous"
-                async>
-            </script>
-        </div>
-
-        <a href="/moments" class="blog-back">↖back</a>
+        </MiniNav>
     </body>
 </html>

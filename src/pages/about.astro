@@ -1,7 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
+import MiniNav from '../components/MiniNav.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import { Font } from 'astro:assets';
 
 const pageTitle = "About - " + SITE_TITLE;
 ---
@@ -15,18 +15,23 @@ const pageTitle = "About - " + SITE_TITLE;
         background: #000;
         color: #ddd;
         font-family: inherit;
+        margin: 0;
       }
       main {
         max-width: 680px;
-        margin: 4em auto;
-        padding: 0 1em;
+        margin: 0 auto;
+        padding: 4em 1em;
+        min-height: 100vh;
+        box-sizing: border-box;
       }
     </style>
   </head>
   <body>
-    <main>
-      <h1>关于</h1>
-      <p>这里还没写东西喵～</p>
-    </main>
+    <MiniNav>
+      <main>
+        <h1>关于</h1>
+        <p>这里还没写东西喵～</p>
+      </main>
+    </MiniNav>
   </body>
 </html>

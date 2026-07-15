@@ -1,0 +1,343 @@
+---
+interface Props {
+  currentTitle?: string;
+}
+
+const path = Astro.url.pathname;
+
+const breadcrumbMap: Record<string, string> = {
+  about: '关于',
+  moments: '动态',
+  connect: '联系',
+  links: '友链',
+  blog: '博客',
+};
+
+interface Crumb {
+  label: string;
+  url?: string;
+}
+
+const crumbs: Crumb[] = [{ label: '首页', url: '/' }];
+const segs = path.split('/').filter(Boolean);
+
+for (let i = 0; i < segs.length; i++) {
+  const seg = segs[i];
+  if (i === segs.length - 1 && Astro.props.currentTitle) {
+    crumbs.push({ label: Astro.props.currentTitle });
+  } else {
+    const label = breadcrumbMap[seg] || decodeURIComponent(seg);
+    const url = '/' + segs.slice(0, i + 1).join('/');
+    crumbs.push({ label, url });
+  }
+}
+
+const isActive = (p: string) => (p === '/' ? path === '/' : path.startsWith(p));
+
+const navItems = [
+  { label: '首页', url: '/' },
+  { label: '动态', url: '/moments' },
+  { label: '关于', url: '/about' },
+  { label: '联系', url: '/connect' },
+  { label: '友链', url: '/links' },
+];
+---
+
+<div class="mini-nav-bar" id="nav-bar">
+  <span class="mini-nav-breadcrumb" aria-label="当前路径">
+    {crumbs.map((c, i) => (
+      <>
+        {i > 0 && <span class="crumb-sep" aria-hidden="true">›</span>}
+        {c.url
+          ? <a href={c.url} class="crumb-link">{c.label}</a>
+          : <span class="crumb-current" aria-current="page">{c.label}</span>
+        }
+      </>
+    ))}
+  </span>
+  <button
+    id="nav-toggle"
+    class="mini-nav-toggle"
+    aria-label="打开导航菜单"
+    aria-expanded="false"
+  >☰</button>
+</div>
+
+<nav id="nav-sidebar" class="mini-nav-sidebar" aria-label="全局导航" role="dialog" aria-modal="true" aria-label="导航菜单">
+  <div class="nav-sidebar-panel">
+    <div class="nav-sidebar-header">
+      <span class="nav-sidebar-title">导航</span>
+    </div>
+    <div>
+      <ul class="nav-sidebar-links">
+        {navItems.map((item) => (
+          <li class:list={{ active: isActive(item.url) }}>
+            <a href={item.url}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="nav-sidebar-footer">
+      <span class="nav-sidebar-domain">nyan.work</span>
+    </div>
+  </div>
+</nav>
+
+<div id="page-content" class="page-content">
+  <slot />
+</div>
+
+<style>
+  .mini-nav-bar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--pixel-font);
+    font-size: 11px;
+    color: #555;
+    pointer-events: auto;
+    user-select: none;
+    isolation: isolate;
+    transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .mini-nav-bar.shifted {
+    transform: translateX(-280px);
+  }
+
+  .mini-nav-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    animation: navFadeIn 0.5s ease 0.8s forwards;
+  }
+
+  @keyframes navFadeIn {
+    to { opacity: 1; }
+  }
+
+  .crumb-sep {
+    color: #444;
+    font-size: 10px;
+  }
+
+  .crumb-link {
+    color: #777;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .crumb-link:hover {
+    color: #ccc;
+  }
+
+  .crumb-current {
+    color: #999;
+  }
+
+  .mini-nav-toggle {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    font-family: var(--pixel-font);
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .mini-nav-toggle:hover {
+    color: #ccc;
+  }
+
+  .mini-nav-toggle[aria-expanded="true"] {
+    color: #ccc;
+  }
+
+  /* ── 侧边栏 ── */
+  .mini-nav-sidebar {
+    position: fixed;
+    top: 0;
+    right: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 999;
+    transition: right 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+    pointer-events: none;
+  }
+
+  .mini-nav-sidebar.open {
+    right: 0;
+    pointer-events: auto;
+  }
+
+  .nav-sidebar-panel {
+    height: 100%;
+    background: #111;
+    border-left: 1px solid #222;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-sizing: border-box;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .nav-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .nav-sidebar-title {
+    font-family: var(--pixel-font);
+    font-size: 18px;
+    color: #555;
+    letter-spacing: 4px;
+  }
+
+  .nav-sidebar-links {
+    list-style: none;
+    margin: 0;
+    padding: 16px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-sidebar-links li a {
+    display: block;
+    padding: 10px 12px;
+    color: #666;
+    text-decoration: none;
+    font-family: var(--pixel-font);
+    font-size: 22px;
+    letter-spacing: 2px;
+    transition: color 0.2s, background 0.2s, transform 0.2s;
+    border-radius: 4px;
+  }
+
+  .nav-sidebar-links li a:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateX(4px);
+  }
+
+  .nav-sidebar-links li.active a {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .nav-sidebar-footer {
+    padding: 16px 28px 24px;
+    border-top: 1px solid #1a1a1a;
+  }
+
+  .nav-sidebar-domain {
+    font-family: var(--pixel-font);
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 2px;
+  }
+
+  /* ── 页面滑动 ── */
+  .page-content {
+    transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+    min-height: 100vh;
+  }
+
+  .page-content.shifted {
+    transform: translateX(-280px);
+  }
+
+  /* ── 移动端 ── */
+  @media (max-width: 768px) {
+    .mini-nav-bar {
+      top: 12px;
+      right: 12px;
+      font-size: 10px;
+    }
+
+    .mini-nav-sidebar {
+      width: 100vw;
+      right: -100vw;
+    }
+
+    .nav-sidebar-panel {
+      width: 80vw;
+      margin-left: auto;
+    }
+
+    .page-content.shifted {
+      transform: translateX(-80vw);
+    }
+
+    .mini-nav-bar.shifted {
+      transform: translateX(-80vw);
+    }
+
+    .mini-nav-breadcrumb {
+      display: none;
+    }
+
+    .nav-sidebar-links li a {
+      font-size: 18px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', function () {
+    const toggle = document.getElementById('nav-toggle');
+    const sidebar = document.getElementById('nav-sidebar');
+    const content = document.getElementById('page-content');
+    const navBar = document.getElementById('nav-bar');
+
+    if (!toggle || !sidebar || !content || !navBar) return;
+
+    function open() {
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', '关闭导航菜单');
+      sidebar.classList.add('open');
+      content.classList.add('shifted');
+      navBar.classList.add('shifted');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNav() {
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', '打开导航菜单');
+      sidebar.classList.remove('open');
+      content.classList.remove('shifted');
+      navBar.classList.remove('shifted');
+      document.body.style.overflow = '';
+    }
+
+    toggle.addEventListener('click', function () {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) closeNav();
+      else open();
+    });
+
+    content.addEventListener('click', function () {
+      if (sidebar.classList.contains('open')) {
+        closeNav();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+        closeNav();
+      }
+    });
+  });
+</script>

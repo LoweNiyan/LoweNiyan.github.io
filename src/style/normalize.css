@@ -2,6 +2,7 @@
     --sans-font: var(--font-rubik), var(--font-opposans), sans-serif;
     --serif-font: serif;
     --mono-font: var(--font-mono), monospace;
+    --pixel-font: var(--font-pixel-dos), var(--font-pixel-7), monospace;
 }
 
 * {
