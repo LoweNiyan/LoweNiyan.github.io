@@ -1,5 +1,6 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
+import MiniNav from '../components/MiniNav.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
@@ -38,7 +39,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
       }
 
       #glitch-wrapper {
-        height: 100%;
+        height: 100vh;
         width: 100%;
       }
 
@@ -149,15 +150,17 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
   <body>
     <div id="bg-glitch"></div>
     <canvas id="bg-canvas"></canvas>
-    <div id="glitch-wrapper">
-      <main>
-        <h1 data-text="404 - Not Found.">404 - Not Found.</h1>
-        <div class="glitch-buttons">
-          <a href="/">主页</a>
-          <a href="#" onclick="history.back();return false;">返回</a>
-        </div>
-      </main>
-    </div>
+    <MiniNav breadcrumb={[{ label: 'you are lost' }]}>
+      <div id="glitch-wrapper">
+        <main>
+          <h1 data-text="404 - Not Found.">404 - Not Found.</h1>
+          <div class="glitch-buttons">
+            <a href="/">主页</a>
+            <a href="#" onclick="history.back();return false;">返回</a>
+          </div>
+        </main>
+      </div>
+    </MiniNav>
 
     <svg style="position:fixed;width:0;height:0;" aria-hidden="true">
       <filter id="glitch-filter" x="-20%" y="-20%" width="140%" height="140%">

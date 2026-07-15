@@ -1,6 +1,7 @@
 ---
 interface Props {
   currentTitle?: string;
+  breadcrumb?: Array<{ label: string; url?: string }>;
 }
 
 const path = Astro.url.pathname;
@@ -18,24 +19,26 @@ interface Crumb {
   url?: string;
 }
 
-const crumbs: Crumb[] = [{ label: '首页', url: '/' }];
-const segs = path.split('/').filter(Boolean);
-
-for (let i = 0; i < segs.length; i++) {
-  const seg = segs[i];
-  if (i === segs.length - 1 && Astro.props.currentTitle) {
-    crumbs.push({ label: Astro.props.currentTitle });
-  } else {
-    const label = breadcrumbMap[seg] || decodeURIComponent(seg);
-    const url = '/' + segs.slice(0, i + 1).join('/');
-    crumbs.push({ label, url });
+const crumbs: Crumb[] = Astro.props.breadcrumb ?? (() => {
+  const items: Crumb[] = [{ label: '主页', url: '/' }];
+  const segs = path.split('/').filter(Boolean);
+  for (let i = 0; i < segs.length; i++) {
+    const seg = segs[i];
+    if (i === segs.length - 1 && Astro.props.currentTitle) {
+      items.push({ label: Astro.props.currentTitle });
+    } else {
+      const label = breadcrumbMap[seg] || decodeURIComponent(seg);
+      const url = '/' + segs.slice(0, i + 1).join('/');
+      items.push({ label, url });
+    }
   }
-}
+  return items;
+})();
 
 const isActive = (p: string) => (p === '/' ? path === '/' : path.startsWith(p));
 
 const navItems = [
-  { label: '首页', url: '/' },
+  { label: '主页', url: '/' },
   { label: '动态', url: '/moments' },
   { label: '关于', url: '/about' },
   { label: '联系', url: '/connect' },
@@ -92,7 +95,7 @@ const navItems = [
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 1001;
+    z-index: 10001;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -167,7 +170,7 @@ const navItems = [
     right: -280px;
     width: 280px;
     height: 100vh;
-    z-index: 999;
+    z-index:0;
     transition: right 0.35s cubic-bezier(0.65, 0, 0.35, 1);
     pointer-events: none;
   }
@@ -179,13 +182,11 @@ const navItems = [
 
   .nav-sidebar-panel {
     height: 100%;
-    background: #111;
-    border-left: 1px solid #222;
+    background: inherit;
     display: flex;
     flex-direction: column;
     padding: 0;
     box-sizing: border-box;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.6);
   }
 
   .nav-sidebar-header {
@@ -193,7 +194,6 @@ const navItems = [
     align-items: center;
     justify-content: space-between;
     padding: 24px 28px 16px;
-    border-bottom: 1px solid #1a1a1a;
   }
 
   .nav-sidebar-title {
@@ -211,6 +211,7 @@ const navItems = [
     display: flex;
     flex-direction: column;
     gap: 4px;
+    text-align: center;
   }
 
   .nav-sidebar-links li a {
@@ -222,24 +223,22 @@ const navItems = [
     font-size: 22px;
     letter-spacing: 2px;
     transition: color 0.2s, background 0.2s, transform 0.2s;
-    border-radius: 4px;
   }
 
   .nav-sidebar-links li a:hover {
     color: #ccc;
     background: rgba(255, 255, 255, 0.04);
-    transform: translateX(4px);
   }
 
   .nav-sidebar-links li.active a {
-    color: #ccc;
-    background: rgba(255, 255, 255, 0.06);
-    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.3);
+    color: #ccc
+    ;
+    background: #ff284f;
+    box-shadow: inset 0 0 20px #0006;
   }
 
   .nav-sidebar-footer {
     padding: 16px 28px 24px;
-    border-top: 1px solid #1a1a1a;
   }
 
   .nav-sidebar-domain {
@@ -251,12 +250,20 @@ const navItems = [
 
   /* ── 页面滑动 ── */
   .page-content {
-    transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+    overflow: hidden;
+    transition: 
+      transform 0.35s cubic-bezier(0.65, 0, 0.35, 1),
+      border-radius 0.35s linear,
+      filter 1s linear;
     min-height: 100vh;
+    box-shadow: 10px 0px 50px 5px #000a;
   }
 
   .page-content.shifted {
     transform: translateX(-280px);
+    border-top-right-radius: 48px;
+    border-bottom-right-radius: 48px;
+    filter: brightness(0.8) saturate(0.5);
   }
 
   /* ── 移动端 ── */
@@ -283,10 +290,6 @@ const navItems = [
 
     .mini-nav-bar.shifted {
       transform: translateX(-80vw);
-    }
-
-    .mini-nav-breadcrumb {
-      display: none;
     }
 
     .nav-sidebar-links li a {
@@ -326,6 +329,12 @@ const navItems = [
       const isOpen = toggle.getAttribute('aria-expanded') === 'true';
       if (isOpen) closeNav();
       else open();
+    });
+
+    sidebar.addEventListener('click', function (e) {
+      if (sidebar.classList.contains('open') && !e.target.closest('.nav-sidebar-panel')) {
+        closeNav();
+      }
     });
 
     content.addEventListener('click', function () {
