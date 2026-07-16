@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import MiniNav from '../components/MiniNav.astro';
+import Tag from '../components/Tag.astro';
 import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'] & {
@@ -71,17 +72,6 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
                 display: block;
                 margin-bottom: 8px;
             }
-            .blog-tag {
-                display: inline-block;
-                font-size: 12px;
-                color: #888;
-                border: 1px solid #333;
-                border-radius: 3px;
-                padding: 0 8px;
-                margin-right: 6px;
-                font-style: normal;
-                font-family: var(--mono-font);
-            }
 
             .blog-body {
                 & a {
@@ -141,7 +131,7 @@ const { title, summary, pubDate, time, updatedDate, image, author, tags } = Astr
                     {
                         tags && tags.length > 0 && (
                             <span class="blog-tags">
-                                {tags.map((tag) => <span class="blog-tag">{tag}</span>)}
+                                {tags.map((t) => <Tag tag={t} href={`/moments?tag=${encodeURIComponent(t)}#index`} />)}
                                 <br/>
                             </span>
                         )

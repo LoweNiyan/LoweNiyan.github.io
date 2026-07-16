@@ -116,6 +116,10 @@ const sortedDates = Array.from(groups.keys()).sort((a, b) => b.localeCompare(a))
             <div class="index-page">
               <h1 class="index-title">索引</h1>
               <div class="index-content">
+                <div class="index-search" id="index_search_wrap">
+                  <div class="search-chips" id="search_chips"></div>
+                  <input type="text" id="index_search" placeholder="搜索标签、标题…" />
+                </div>
                 <div id="index_list" class="index-list"></div>
                 <div class="index-blank"></div>
               </div>

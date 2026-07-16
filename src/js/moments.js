@@ -39,7 +39,7 @@ function openModal(entry) {
         }
         var tagsHtml = '';
         if (entry.tags && entry.tags.length) {
-            tagsHtml = entry.tags.map(function (t) { return '<span class="modal-tag">' + t + '</span>'; }).join('');
+            tagsHtml = entry.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('');
         }
         $('#modal_tags').html(tagsHtml);
     }
@@ -103,6 +103,7 @@ function closeIndexOverlay() {
         'box-shadow': '0 0 0 1px #ffffff80, 0 0 5px #ffffff60, 0 0 10px #ffffff40, 0 0 50px #ffffff37',
         'color': '#ffffff80'
     }).text('index');
+    history.replaceState(null, '', '/moments');
 }
 
 function buildIndex(logs) {
@@ -119,9 +120,17 @@ function buildIndex(logs) {
             var text = entry.title || entry.content;
             if (text.length > 30) text = text.substring(0, 30) + '…';
 
+            var tagsHtml = '';
+            if (entry.tags && entry.tags.length) {
+                tagsHtml = entry.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('');
+            }
+
             var $item = $('<div class="index-item">'
                 + '<span class="index-badge ' + typeClass + '">' + badgeText + '</span>'
+                + '<span class="index-item-text-wrap">'
                 + '<span class="index-item-text">' + text + '</span>'
+                + tagsHtml
+                + '</span>'
                 + '<span class="index-item-time">' + entry.time + '</span>'
                 + '</div>');
 
@@ -139,8 +148,43 @@ function buildIndex(logs) {
     });
 }
 
+// ── 搜索过滤（AND 多词）──
+function filterLogs(logs, typedText, terms) {
+    var allTerms = [];
+    if (typedText) allTerms.push(typedText);
+    allTerms = allTerms.concat(terms);
+    if (allTerms.length === 0) return logs;
+
+    return logs.filter(function (entry) {
+        return allTerms.every(function (term) {
+            var q = term.toLowerCase();
+            if (entry.title && entry.title.toLowerCase().indexOf(q) !== -1) return true;
+            if (entry.tags) {
+                for (var i = 0; i < entry.tags.length; i++) {
+                    if (entry.tags[i].toLowerCase().indexOf(q) !== -1) return true;
+                }
+            }
+            if (entry.type === 'note' && entry.content && entry.content.toLowerCase().indexOf(q) !== -1) return true;
+            return false;
+        });
+    });
+}
+
 // ── Module-scoped state ──
 let hintTimer;
+var allLogsData = null;
+var searchTerms = [];
+
+function renderSearchChips() {
+    var $chips = $('#search_chips').empty();
+    searchTerms.forEach(function (term, i) {
+        $chips.append('<span class="search-chip">' + term + '<span class="search-chip-remove" data-index="' + i + '">×</span></span>');
+    });
+    var input = document.getElementById('index_search');
+    var typed = input ? input.value : '';
+    var filtered = filterLogs(allLogsData, typed, searchTerms);
+    buildIndex(filtered);
+}
 
 function hideHintTemporarily() {
     $('.kb-hint').css('opacity', 0.2);
@@ -186,6 +230,33 @@ $(document).on('click', '#index_overlay', function (e) {
 });
 $(document).on('click', '.index-close', closeIndexOverlay);
 
+// 搜索：chip 删除
+$(document).on('click', '.search-chip-remove', function () {
+    var index = parseInt($(this).data('index'));
+    if (!isNaN(index)) {
+        searchTerms.splice(index, 1);
+        renderSearchChips();
+    }
+});
+
+// moments 页面：标签点击 → 添加为 chip（弹窗中的标签和卡片/索引同一逻辑）
+$(document).on('click', '.tag', function (e) {
+    e.stopPropagation();
+    if (window.location.pathname.replace(/\/$/, '') === '/moments') {
+        var tagText = $(this).text();
+        if (tagText) {
+            searchTerms.length = 0;
+            searchTerms.push(tagText);
+            var input = document.getElementById('index_search');
+            if (input) input.value = '';
+            renderSearchChips();
+            if (!$('#index_overlay').hasClass('active')) {
+                openIndexOverlay();
+            }
+        }
+    }
+});
+
 // 键盘快捷键
 $(document).on('keydown', function (e) {
     if (e.key === 'Escape') {
@@ -201,6 +272,9 @@ $(document).on('keydown', function (e) {
     }
 
     if ($('#modal').hasClass('active')) return;
+
+    // 输入框聚焦时不触发快捷键
+    if ($(e.target).is('input, textarea, [contenteditable]')) return;
 
     if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) {
         if ($('#index_overlay').hasClass('active')) {
@@ -253,8 +327,52 @@ document.addEventListener('astro:page-load', function () {
         $('#index_overlay').css('clip-path', 'circle(0% at ' + center.x + 'px ' + center.y + 'px)');
     })();
 
-    // 构建索引
-    buildIndex(allLogs);
+    // 保存数据供搜索使用
+    allLogsData = allLogs;
+
+    // 重置搜索状态
+    searchTerms = [];
+
+    // 从 URL 读取 ?tag= 参数，自动添加为 chip
+    var urlParams = new URLSearchParams(window.location.search);
+    var tagFromUrl = urlParams.get('tag');
+    if (tagFromUrl) {
+        searchTerms.push(tagFromUrl);
+    }
+
+    // 构建索引（如果 ?tag= 已有值，直接过滤）
+    buildIndex(filterLogs(allLogsData, '', searchTerms));
+
+    // 搜索框：实时过滤 + Enter 提交 chip
+    var searchInput = document.getElementById('index_search');
+    if (searchInput) {
+        $(searchInput).off('input.indexSearch').on('input.indexSearch', function () {
+            var filtered = filterLogs(allLogsData, this.value, searchTerms);
+            buildIndex(filtered);
+        });
+
+        $(searchInput).off('keydown.indexSearch').on('keydown.indexSearch', function (e) {
+            if (e.key === 'Backspace' && !this.value && searchTerms.length) {
+                searchTerms.pop();
+                renderSearchChips();
+                return;
+            }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var val = this.value.trim();
+                if (val && searchTerms.indexOf(val) === -1) {
+                    searchTerms.push(val);
+                    this.value = '';
+                    renderSearchChips();
+                }
+            }
+        });
+    }
+
+    // 如果有已有的 chip，重新渲染（SPA 导航恢复）
+    if (searchTerms.length) {
+        renderSearchChips();
+    }
 
     // 如果 URL hash 是 #index，自动打开索引
     if (window.location.hash === '#index') {
